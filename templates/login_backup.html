@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>私人空间</title>
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body class="login-page">
+
+<div class="light light-one"></div>
+<div class="light light-two"></div>
+<div class="light light-three"></div>
+
+<div class="stars">
+    <div class="star star-one"></div>
+    <div class="star star-two"></div>
+    <div class="star star-three"></div>
+    <div class="star star-four"></div>
+    <div class="star star-five"></div>
+    <div class="star star-six"></div>
+</div>
+
+
+<div class="login-card">
+
+<div class="heart-container">
+
+<svg id="heart" class="glass-heart" viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
+
+<defs>
+
+<linearGradient id="heartGradient" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ffffff"/>
+    <stop offset="20%" stop-color="#ffe8f2"/>
+    <stop offset="50%" stop-color="#ffb1d0"/>
+    <stop offset="80%" stop-color="#ff78ad"/>
+    <stop offset="100%" stop-color="#ff4d91"/>
+</linearGradient>
+
+<linearGradient id="glassReflection" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="white" stop-opacity=".9"/>
+    <stop offset="50%" stop-color="white" stop-opacity=".3"/>
+    <stop offset="100%" stop-color="white" stop-opacity="0"/>
+</linearGradient>
+
+<filter id="blur">
+    <feGaussianBlur stdDeviation="8"/>
+</filter>
+
+</defs>
+
+
+<ellipse
+cx="110"
+cy="185"
+rx="65"
+ry="12"
+fill="#ff7faf"
+opacity=".35"
+filter="url(#blur)"
+/>
+
+
+<path
+class="heart-body"
+d="
+M110 178
+C92 160 28 115 28 62
+C28 32 62 18 88 40
+C100 50 106 65 110 76
+C114 65 120 50 132 40
+C158 18 192 32 192 62
+C192 115 128 160 110 178
+Z
+"
+fill="url(#heartGradient)"
+/>
+
+
+<path
+class="heart-reflect"
+d="
+M55 65
+C65 35 95 38 108 70
+"
+fill="none"
+stroke="white"
+stroke-width="9"
+stroke-linecap="round"
+opacity=".8"
+/>
+
+
+<path
+class="heart-glass-line"
+d="
+M45 95
+C80 130 135 150 170 95
+"
+fill="none"
+stroke="url(#glassReflection)"
+stroke-width="8"
+stroke-linecap="round"
+/>
+
+
+<ellipse
+cx="75"
+cy="65"
+rx="15"
+ry="25"
+fill="white"
+opacity=".25"
+/>
+
+
+<circle
+cx="150"
+cy="85"
+r="7"
+fill="white"
+opacity=".35"
+/>
+
+
+</svg>
+
+</div>
+
+
+<h1>我们的秘密空间</h1>
+
+<p>请输入专属账号密码</p>
+
+
+<form method="POST" action="/login">
+
+<input
+name="username"
+placeholder="输入名字"
+autocomplete="off"
+required>
+
+
+<input
+type="password"
+name="password"
+placeholder="输入密码"
+required>
+
+
+<button type="submit">
+进入
+</button>
+
+</form>
+
+
+</div>
+
+
+<script>
+
+const heart=document.getElementById("heart");
+
+if(heart){
+
+heart.addEventListener("pointerdown",()=>{
+
+    heart.classList.add("heart-press");
+    heart.classList.add("heart-click");
+
+});
+
+
+heart.addEventListener("pointerup",()=>{
+
+    heart.classList.remove("heart-press");
+
+    setTimeout(()=>{
+
+        heart.classList.remove("heart-click");
+
+    },800);
+
+});
+
+}
+
+</script>
+
+
+</body>
+</html>

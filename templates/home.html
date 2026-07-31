@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我们的空间</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+
+<body class="home-page">
+
+
+
+<!-- 动态背景 -->
+
+<div class="background">
+
+
+
+    <div class="ambient"></div>
+
+
+
+    <div class="light light-one"></div>
+
+    <div class="light light-two"></div>
+
+    <div class="light light-three"></div>
+
+
+
+
+
+
+    <!-- 星空 -->
+
+    <div class="stars">
+
+
+        <div class="star star-one"></div>
+
+        <div class="star star-two"></div>
+
+        <div class="star star-three"></div>
+
+        <div class="star star-four"></div>
+
+        <div class="star star-five"></div>
+
+        <div class="star star-six"></div>
+
+        <div class="star star-seven"></div>
+
+        <div class="star star-eight"></div>
+
+
+    </div>
+
+
+
+
+
+
+
+    <!-- 动态流星 -->
+
+    <div class="shooting-stars"></div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<main class="home-container">
+
+
+
+
+
+
+    <!-- 欢迎 -->
+
+
+    <header class="welcome">
+
+
+        <h1>
+
+            欢迎回来
+
+        </h1>
+
+
+
+        <p>
+
+            {{ user }}
+
+        </p>
+
+
+
+    </header>
+
+
+
+
+
+
+
+
+
+    <!-- 时间 Widget -->
+
+
+    <section class="widget days-widget">
+
+
+        <div class="glass-shine"></div>
+
+
+
+
+        <p class="widget-label">
+
+            我们已经在一起
+
+        </p>
+
+
+
+
+
+        <div class="days-number" id="days">
+
+            0
+
+        </div>
+
+
+
+
+
+        <p class="days-word">
+
+            天了
+
+        </p>
+
+
+
+
+
+
+        <div class="love-symbol">
+
+
+            ♡
+
+
+        </div>
+
+
+
+
+
+
+        <p class="date-text">
+
+
+            纪念日：2026年6月5日
+
+
+        </p>
+
+
+
+
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- 状态 Widget -->
+
+
+
+    <section class="widget status-widget">
+
+
+        <div class="glass-shine"></div>
+
+
+
+        <h2>
+
+            对方状态
+
+        </h2>
+
+
+
+
+
+
+        <p class="online-user">
+
+
+            {{ other }}
+
+
+        </p>
+
+
+
+
+
+
+
+        <div class="status">
+
+
+            <span id="status-dot"></span>
+
+
+
+            <span id="status-text">
+
+                检测中
+
+            </span>
+
+
+
+        </div>
+
+
+
+
+
+
+
+        <p class="last-online">
+
+
+            最后上线：
+
+            <span id="last-time">
+
+                暂无记录
+
+            </span>
+
+
+        </p>
+
+
+
+
+
+
+    </section>
+
+
+
+
+
+
+
+
+
+    <!-- 回忆 Widget -->
+
+
+    <section class="widget memory-widget">
+
+
+
+        <div class="glass-shine"></div>
+
+
+
+
+
+        <h2>
+
+            我们的回忆
+
+        </h2>
+
+
+
+
+
+
+
+        <div class="timeline">
+
+
+
+
+
+
+            <div class="timeline-item">
+
+
+
+                <div class="timeline-dot"></div>
+
+
+
+
+
+                <div class="timeline-content">
+
+
+
+                    <h3>
+
+                        2026年6月5日
+
+
+                    </h3>
+
+
+
+
+
+                    <p>
+
+                        我们的故事开始
+
+
+                    </p>
+
+
+
+
+                </div>
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="timeline-item">
+
+
+
+                <div class="timeline-dot"></div>
+
+
+
+
+
+                <div class="timeline-content">
+
+
+
+                    <h3>
+
+                        未来
+
+
+                    </h3>
+
+
+
+
+
+                    <p>
+
+                        等待更多美好回忆
+
+
+                    </p>
+
+
+
+
+                </div>
+
+
+
+
+            </div>
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+    </section>
+
+
+
+
+
+
+
+
+
+    <a class="logout" href="/logout">
+
+
+        退出登录
+
+
+    </a>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+
+
+<script src="/static/js/app.js"></script>
+
+
+
+
+
+
+<script>
+
+
+const startDate = new Date("2026-06-05");
+
+
+
+function updateDays(){
+
+
+    const now = new Date();
+
+
+    const diff = now - startDate;
+
+
+
+    const days = Math.floor(
+
+        diff /
+
+        (1000 * 60 * 60 * 24)
+
+    );
+
+
+
+    const element = document.getElementById("days");
+
+
+
+    if(element){
+
+        element.innerHTML = days;
+
+    }
+
+
+}
+
+
+
+updateDays();
+
+
+
+setInterval(
+
+    updateDays,
+
+    3600000
+
+);
+
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>管理中心</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+
+
+<body class="admin-page">
+
+
+
+<div class="admin-background">
+
+</div>
+
+
+
+
+<main class="admin-container">
+
+
+
+<h1 class="admin-title">
+
+🖥 管理中心
+
+</h1>
+
+
+
+
+
+
+<!-- 系统状态 -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+服务器状态
+
+</h2>
+
+
+
+<div class="system-item">
+
+<p>
+
+CPU
+
+</p>
+
+
+<div class="system-number" id="cpu">
+
+读取中...
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="system-item">
+
+<p>
+
+内存
+
+</p>
+
+
+<div class="system-number" id="memory">
+
+读取中...
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="system-item">
+
+<p>
+
+磁盘
+
+</p>
+
+
+<div class="system-number" id="disk">
+
+读取中...
+
+</div>
+
+
+</div>
+
+
+
+
+
+<p id="system">
+
+检测中...
+
+</p>
+
+
+
+</section>
+
+
+
+
+
+
+
+<!-- CPU曲线 -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+📈 CPU实时监控
+
+</h2>
+
+
+<canvas id="cpuChart"></canvas>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- 网站统计 -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+🌐 网站访问
+
+</h2>
+
+
+
+<div class="system-item">
+
+<p>
+
+今日访问
+
+</p>
+
+
+<div class="system-number" id="today">
+
+0
+
+</div>
+
+
+</div>
+
+
+
+
+
+<div class="system-item">
+
+
+<p>
+
+累计访问
+
+</p>
+
+
+<div class="system-number" id="total">
+
+0
+
+</div>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- Tunnel -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+☁ Cloudflare Tunnel
+
+</h2>
+
+
+
+<div class="system-number" id="tunnel">
+
+检测中...
+
+</div>
+
+
+<p id="tunnel-info">
+
+</p>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- 登录记录 -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+🔐 登录记录
+
+</h2>
+
+
+
+
+{% for log in logs %}
+
+
+<div class="admin-log">
+
+
+<h3>
+
+{{ log.username }}
+
+</h3>
+
+
+
+<p>
+
+时间：
+
+{{ log.time }}
+
+</p>
+
+
+
+<p>
+
+IP：
+
+{{ log.ip }}
+
+</p>
+
+
+
+<p>
+
+设备：
+
+{{ log.user_agent[:60] }}
+
+</p>
+
+
+</div>
+
+
+<br>
+
+
+{% endfor %}
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<!-- 设备列表 -->
+
+
+<section class="admin-card">
+
+
+<h2>
+
+📱 设备列表
+
+</h2>
+
+
+
+
+{% for device in devices %}
+
+
+<div class="admin-log">
+
+
+<h3>
+
+{{ device.username }}
+
+</h3>
+
+
+
+<p>
+
+设备：
+
+{{ device.device_name }}
+
+</p>
+
+
+
+<p>
+
+最后访问：
+
+{{ device.last_time }}
+
+</p>
+
+
+
+</div>
+
+
+<br>
+
+
+{% endfor %}
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+<a class="admin-logout" href="/admin/logout">
+
+退出后台
+
+</a>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+
+
+<script>
+
+
+// ==========================
+// 系统数据
+// ==========================
+
+
+function updateSystem(){
+
+
+fetch("/admin/system")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+document.getElementById("cpu").innerHTML =
+data.cpu+"%";
+
+
+
+document.getElementById("memory").innerHTML =
+data.memory+"%";
+
+
+
+document.getElementById("disk").innerHTML =
+data.disk+"%";
+
+
+
+document.getElementById("system").innerHTML =
+data.system+" · "+data.machine;
+
+
+
+});
+
+
+}
+
+
+
+updateSystem();
+
+
+setInterval(
+
+updateSystem,
+
+10000
+
+);
+
+
+
+
+
+
+
+
+
+// ==========================
+// CPU折线
+// ==========================
+
+
+let cpuChart;
+
+
+
+function updateChart(){
+
+
+fetch("/admin/system/history")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+let labels =
+data.map(
+item=>item.time
+);
+
+
+
+let values =
+data.map(
+item=>item.cpu
+);
+
+
+
+
+if(!cpuChart){
+
+
+
+cpuChart=new Chart(
+
+document.getElementById("cpuChart"),
+
+
+{
+
+
+type:"line",
+
+
+data:{
+
+
+labels:labels,
+
+
+datasets:[{
+
+
+label:"CPU %",
+
+
+data:values,
+
+
+tension:.4
+
+
+}]
+
+
+},
+
+
+
+options:{
+
+
+responsive:true
+
+
+}
+
+
+}
+
+
+);
+
+
+
+}
+
+else{
+
+
+cpuChart.data.labels=labels;
+
+
+cpuChart.data.datasets[0].data=values;
+
+
+cpuChart.update();
+
+
+
+}
+
+
+});
+
+
+}
+
+
+
+updateChart();
+
+
+setInterval(
+
+updateChart,
+
+10000
+
+);
+
+
+
+
+
+
+
+
+
+// ==========================
+// 网站统计
+// ==========================
+
+
+function updateStats(){
+
+
+fetch("/admin/stats")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+document.getElementById("today").innerHTML =
+data.today;
+
+
+
+document.getElementById("total").innerHTML =
+data.total;
+
+
+
+});
+
+
+}
+
+
+
+updateStats();
+
+
+setInterval(
+
+updateStats,
+
+10000
+
+);
+
+
+
+
+
+
+
+
+// ==========================
+// Tunnel
+// ==========================
+
+
+function updateTunnel(){
+
+
+fetch("/admin/tunnel")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+document.getElementById("tunnel").innerHTML =
+
+
+data.online ?
+
+"🟢 Online"
+
+:
+
+"🔴 Offline";
+
+
+
+document.getElementById("tunnel-info").innerHTML =
+data.info;
+
+
+
+});
+
+
+}
+
+
+
+updateTunnel();
+
+
+setInterval(
+
+updateTunnel,
+
+30000
+
+);
+
+
+
+</script>
+
+
+
+
+
+</body>
+
+</html>

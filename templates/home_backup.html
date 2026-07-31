@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我们的空间</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+
+<body class="login-page">
+
+
+<div class="background">
+
+
+    <div class="light light-one"></div>
+    <div class="light light-two"></div>
+    <div class="light light-three"></div>
+
+
+    <!-- 丁达尔光 -->
+
+    <div class="light-ray ray-one"></div>
+    <div class="light-ray ray-two"></div>
+    <div class="light-ray ray-three"></div>
+
+
+
+    <!-- 星空 -->
+
+    <div class="stars">
+
+        <div class="star star-one"></div>
+        <div class="star star-two"></div>
+        <div class="star star-three"></div>
+        <div class="star star-four"></div>
+        <div class="star star-five"></div>
+        <div class="star star-six"></div>
+
+    </div>
+
+
+
+
+    <!-- 流星 -->
+
+    <div class="shooting-stars">
+
+
+        <span class="meteor meteor-one"></span>
+
+        <span class="meteor meteor-two"></span>
+
+        <span class="meteor meteor-three"></span>
+
+        <span class="meteor meteor-four"></span>
+
+
+        <span class="meteor meteor-five"></span>
+
+        <span class="meteor meteor-six"></span>
+
+        <span class="meteor meteor-seven"></span>
+
+        <span class="meteor meteor-eight"></span>
+
+
+    </div>
+
+
+
+</div>
+
+
+
+
+
+<div class="home-card">
+
+
+
+<h1>
+
+欢迎回来，{{ user }}
+
+</h1>
+
+
+
+
+
+<div class="days-card">
+
+
+
+<p class="together-text">
+
+我们已经在一起
+
+<br>
+
+
+<span class="days-number" id="days">
+
+0
+
+</span>
+
+
+<span class="days-word">
+
+天了
+
+</span>
+
+
+</p>
+
+
+
+
+<p class="date-text">
+
+纪念日：6月5日
+
+</p>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 爱心 -->
+
+
+<div class="heart-area">
+
+
+<div class="heart-ripple"></div>
+
+
+<div class="love-heart"></div>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="online-box">
+
+
+<p class="online-title">
+
+对方状态
+
+</p>
+
+
+
+<p class="online-user">
+
+{{ other }}
+
+</p>
+
+
+
+<p class="status">
+
+
+<span id="status-dot"></span>
+
+
+<span id="status-text">
+
+检测中
+
+</span>
+
+
+</p>
+
+
+
+
+<p class="last-online">
+
+最后上线：
+
+<span id="last-time">
+
+暂无记录
+
+</span>
+
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<div class="memory-box">
+
+
+<p>
+
+我们的回忆
+
+</p>
+
+
+
+
+<div class="timeline">
+
+
+
+<div class="timeline-item">
+
+
+<div class="timeline-dot"></div>
+
+
+
+<div class="timeline-card">
+
+
+<h3>
+
+2026年6月5日
+
+</h3>
+
+
+
+<p>
+
+我们的故事开始
+
+</p>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+<div class="timeline-item">
+
+
+<div class="timeline-dot"></div>
+
+
+
+<div class="timeline-card">
+
+
+<h3>
+
+未来
+
+</h3>
+
+
+
+<p>
+
+等待更多美好回忆
+
+</p>
+
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<a class="logout" href="/logout">
+
+退出登录
+
+</a>
+
+
+
+
+</div>
+
+
+
+
+
+
+<script src="/static/js/app.js"></script>
+
+
+
+
+
+<script>
+
+
+const startDate = new Date("2026-06-05");
+
+
+
+function getDays(){
+
+
+    const now = new Date();
+
+
+    const diff = now - startDate;
+
+
+    return Math.floor(
+
+        diff / (1000*60*60*24)
+
+    );
+
+
+}
+
+
+
+
+
+
+function animateDays(target){
+
+
+    const element = document.getElementById("days");
+
+
+    let current = 0;
+
+
+    const duration = 1200;
+
+
+    const step = 30;
+
+
+    const increment = target / (duration / step);
+
+
+
+
+    const timer = setInterval(()=>{
+
+
+        current += increment;
+
+
+
+        if(current >= target){
+
+
+            current = target;
+
+
+            clearInterval(timer);
+
+
+        }
+
+
+
+        element.innerHTML = Math.floor(current);
+
+
+
+    },step);
+
+
+
+}
+
+
+
+
+
+function updateDays(){
+
+
+    animateDays(getDays());
+
+
+}
+
+
+
+
+
+updateDays();
+
+
+setInterval(
+
+updateDays,
+
+3600000
+
+);
+
+
+
+</script>
+
+
+
+</body>
+
+</html>

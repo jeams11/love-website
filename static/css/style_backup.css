@@ -1,0 +1,1897 @@
+/* ==========================
+   全局 Apple 风格字体
+========================== */
+
+
+*{
+
+    box-sizing:border-box;
+
+}
+
+
+
+body{
+
+    margin:0;
+
+    padding:0;
+
+
+    font-family:
+
+    -apple-system,
+
+    BlinkMacSystemFont,
+
+    "SF Pro Display",
+
+    "SF Pro Text",
+
+    "PingFang SC",
+
+    "Helvetica Neue",
+
+    Arial,
+
+    sans-serif;
+
+
+    -webkit-font-smoothing:antialiased;
+
+    overflow-x:hidden;
+
+}
+
+
+
+
+/* ==========================
+   页面背景
+========================== */
+
+
+.login-page{
+
+
+    min-height:100vh;
+
+
+    background:
+
+
+    linear-gradient(
+
+    135deg,
+
+    #fff9fc 0%,
+
+    #ffeaf4 35%,
+
+    #e8f7ff 70%,
+
+    #eee7ff 100%
+
+    );
+
+
+    overflow:hidden;
+
+
+}
+
+
+
+
+/* ==========================
+   背景层
+========================== */
+
+
+.background{
+
+
+    position:fixed;
+
+    inset:0;
+
+    overflow:hidden;
+
+    z-index:-1;
+
+
+}
+
+
+
+
+/* ==========================
+   彩色柔光
+========================== */
+
+
+.light{
+
+
+    position:absolute;
+
+
+    border-radius:50%;
+
+
+    filter:blur(80px);
+
+
+    opacity:.45;
+
+
+    animation:
+
+    cloudMove 18s ease-in-out infinite;
+
+
+}
+
+
+
+.light-one{
+
+
+    width:420px;
+
+    height:420px;
+
+
+    background:#ffdceb;
+
+
+    top:-120px;
+
+    left:-100px;
+
+
+}
+
+
+
+.light-two{
+
+
+    width:380px;
+
+    height:380px;
+
+
+    background:#dff5ff;
+
+
+    right:-100px;
+
+    top:180px;
+
+
+    animation-delay:6s;
+
+
+}
+
+
+
+
+.light-three{
+
+
+    width:350px;
+
+    height:350px;
+
+
+    background:#e8ddff;
+
+
+    bottom:-120px;
+
+    left:40%;
+
+
+    animation-delay:12s;
+
+
+}
+
+
+
+
+
+
+
+@keyframes cloudMove{
+
+
+    0%{
+
+
+        transform:
+
+        translate(0,0)
+
+        scale(1);
+
+
+    }
+
+
+    50%{
+
+
+        transform:
+
+        translate(40px,-30px)
+
+        scale(1.08);
+
+
+    }
+
+
+
+    100%{
+
+
+        transform:
+
+        translate(0,0)
+
+        scale(1);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+/* ==========================
+   丁达尔光
+========================== */
+
+
+.light-ray{
+
+
+    position:absolute;
+
+
+    width:450px;
+
+
+    height:900px;
+
+
+
+    background:
+
+    linear-gradient(
+
+    180deg,
+
+    rgba(255,255,255,.35),
+
+    rgba(255,255,255,0)
+
+    );
+
+
+
+    filter:blur(45px);
+
+
+
+    opacity:.25;
+
+
+
+    transform:
+
+    rotate(35deg);
+
+
+
+    animation:
+
+    rayFloat 12s ease-in-out infinite;
+
+
+
+}
+
+
+
+
+
+.ray-one{
+
+
+    top:-300px;
+
+    left:-100px;
+
+
+}
+
+
+
+
+.ray-two{
+
+
+    top:-200px;
+
+
+    right:-150px;
+
+
+    transform:
+
+    rotate(-35deg);
+
+
+    animation-delay:4s;
+
+
+}
+
+
+
+
+
+.ray-three{
+
+
+    bottom:-400px;
+
+
+    left:40%;
+
+
+    width:300px;
+
+
+    height:700px;
+
+
+    animation-delay:8s;
+
+
+}
+
+
+
+
+
+
+@keyframes rayFloat{
+
+
+    0%{
+
+
+        opacity:.25;
+
+
+        transform:
+
+        translateY(0)
+
+        rotate(35deg);
+
+
+    }
+
+
+
+    50%{
+
+
+        opacity:.4;
+
+
+        transform:
+
+        translateY(30px)
+
+        rotate(38deg);
+
+
+    }
+
+
+
+    100%{
+
+
+        opacity:.25;
+
+
+        transform:
+
+        translateY(0)
+
+        rotate(35deg);
+
+
+    }
+
+
+}
+/* ==========================
+   主内容容器
+========================== */
+
+
+.home-card{
+
+
+    width:90%;
+
+
+    max-width:500px;
+
+
+    margin:auto;
+
+
+    padding-top:60px;
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    align-items:center;
+
+
+
+}
+
+
+
+
+
+/* ==========================
+   标题
+========================== */
+
+
+.home-card h1{
+
+
+    font-size:32px;
+
+
+    font-weight:600;
+
+
+    letter-spacing:.5px;
+
+
+    color:#ffffff;
+
+
+    text-shadow:
+
+
+    0 5px 20px
+
+    rgba(255,150,200,.35);
+
+
+
+}
+
+
+
+
+
+
+
+/* ==========================
+   Liquid Glass 卡片
+========================== */
+
+
+.days-card,
+.online-box,
+.memory-box{
+
+
+    position:relative;
+
+
+    overflow:hidden;
+
+
+    width:100%;
+
+
+    margin:18px 0;
+
+
+    padding:25px;
+
+
+    border-radius:30px;
+
+
+
+    background:
+
+
+    linear-gradient(
+
+    135deg,
+
+    rgba(255,255,255,.72),
+
+    rgba(255,255,255,.32)
+
+    );
+
+
+
+    border:
+
+
+    1px solid
+
+    rgba(255,255,255,.75);
+
+
+
+    backdrop-filter:
+
+    blur(30px);
+
+
+
+    -webkit-backdrop-filter:
+
+    blur(30px);
+
+
+
+
+
+    box-shadow:
+
+
+    0 25px 60px
+
+    rgba(120,100,180,.15),
+
+
+
+    0 8px 30px
+
+    rgba(255,255,255,.25),
+
+
+
+    inset 0 1px 15px
+
+    rgba(255,255,255,.5);
+
+
+
+    animation:
+
+
+    cardAppear 1.2s ease forwards,
+
+    glassFloat 8s ease-in-out 1.2s infinite;
+
+
+
+}
+
+
+
+
+
+.online-box{
+
+
+    animation-delay:.2s;
+
+
+}
+
+
+
+
+.memory-box{
+
+
+    animation-delay:.4s;
+
+
+}
+
+
+
+
+
+
+
+/* ==========================
+   玻璃边缘折射
+========================== */
+
+
+.days-card::before,
+.online-box::before,
+.memory-box::before{
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    inset:0;
+
+
+
+    border-radius:30px;
+
+
+
+    background:
+
+
+    linear-gradient(
+
+    135deg,
+
+
+    rgba(255,255,255,.65),
+
+
+    transparent 40%,
+
+
+    rgba(180,220,255,.35)
+
+    );
+
+
+
+    opacity:.7;
+
+
+    pointer-events:none;
+
+
+
+}
+
+
+
+
+
+/* ==========================
+   玻璃微粒
+========================== */
+
+
+.days-card::after,
+.online-box::after,
+.memory-box::after{
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+    inset:0;
+
+
+
+    background-image:
+
+
+    radial-gradient(
+
+    rgba(255,255,255,.35) 1px,
+
+    transparent 1px
+
+    );
+
+
+
+    background-size:
+
+    5px 5px;
+
+
+
+    opacity:.12;
+
+
+
+    pointer-events:none;
+
+
+}
+
+
+
+
+
+
+
+@keyframes cardAppear{
+
+
+    from{
+
+
+        opacity:0;
+
+
+        transform:
+
+
+        translateY(40px)
+
+        scale(.96);
+
+
+
+    }
+
+
+
+    to{
+
+
+        opacity:1;
+
+
+        transform:
+
+
+        translateY(0)
+
+        scale(1);
+
+
+
+    }
+
+
+}
+
+
+
+
+
+
+@keyframes glassFloat{
+
+
+    0%{
+
+
+        transform:translateY(0);
+
+
+    }
+
+
+
+    50%{
+
+
+        transform:translateY(-6px);
+
+
+    }
+
+
+
+    100%{
+
+
+        transform:translateY(0);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   天数显示
+========================== */
+
+
+.together-text{
+
+
+    text-align:center;
+
+
+    color:#666;
+
+
+    font-size:22px;
+
+
+}
+
+
+
+
+.days-number{
+
+
+    display:inline-block;
+
+
+    font-size:72px;
+
+
+    font-weight:700;
+
+
+    letter-spacing:-3px;
+
+
+
+    background:
+
+
+    linear-gradient(
+
+    180deg,
+
+    #ff8fc7,
+
+    #ff5fa7
+
+    );
+
+
+
+    -webkit-background-clip:text;
+
+
+    color:transparent;
+
+
+
+    text-shadow:
+
+
+    0 10px 30px
+
+    rgba(255,120,180,.25);
+
+
+
+    animation:
+
+    numberPop .8s ease;
+
+
+
+}
+
+
+
+
+
+@keyframes numberPop{
+
+
+    0%{
+
+
+        transform:scale(.8);
+
+
+        opacity:0;
+
+
+    }
+
+
+
+    70%{
+
+
+        transform:scale(1.05);
+
+
+    }
+
+
+
+    100%{
+
+
+        transform:scale(1);
+
+
+        opacity:1;
+
+
+    }
+
+
+}
+
+
+
+
+
+
+.date-text{
+
+
+    text-align:center;
+
+
+    color:#888;
+
+
+}
+
+
+
+
+
+
+
+/* ==========================
+   星空
+========================== */
+
+
+.star{
+
+
+    position:absolute;
+
+
+    width:5px;
+
+
+    height:5px;
+
+
+    border-radius:50%;
+
+
+    background:white;
+
+
+
+    box-shadow:
+
+
+    0 0 10px white;
+
+
+
+    animation:
+
+
+    starTwinkle 5s ease-in-out infinite;
+
+
+}
+
+
+
+
+@keyframes starTwinkle{
+
+
+    0%{
+
+
+        opacity:.3;
+
+
+        transform:scale(.8);
+
+
+    }
+
+
+
+    50%{
+
+
+        opacity:1;
+
+
+        transform:scale(1.3);
+
+
+    }
+
+
+
+    100%{
+
+
+        opacity:.3;
+
+
+        transform:scale(.8);
+
+
+    }
+
+
+}
+
+
+
+
+.star-two{
+
+animation-delay:1s;
+
+}
+
+
+
+.star-three{
+
+animation-delay:2.5s;
+
+}
+
+
+
+.star-four{
+
+animation-delay:4s;
+
+}
+
+
+
+.star-five{
+
+animation-delay:3s;
+
+}
+
+
+
+.star-six{
+
+animation-delay:5s;
+
+}
+/* ==========================
+   爱心区域
+========================== */
+
+
+.heart-area{
+
+    position:relative;
+
+    width:180px;
+
+    height:180px;
+
+    margin:20px auto;
+
+}
+
+
+
+
+
+.love-heart{
+
+
+    position:absolute;
+
+
+    width:120px;
+
+
+    height:120px;
+
+
+    left:30px;
+
+
+    top:30px;
+
+
+
+    background:
+
+
+    linear-gradient(
+
+    145deg,
+
+    #ffd2e7,
+
+    #ff80bb
+
+    );
+
+
+
+    transform:
+
+    rotate(-45deg);
+
+
+
+    border-radius:
+
+    25px;
+
+
+
+    box-shadow:
+
+
+    0 20px 50px
+
+    rgba(255,100,170,.35),
+
+
+    inset 0 0 25px
+
+    rgba(255,255,255,.7);
+
+
+
+    overflow:hidden;
+
+
+
+}
+
+
+
+
+.love-heart::before,
+.love-heart::after{
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+
+    width:120px;
+
+
+    height:120px;
+
+
+    background:inherit;
+
+
+
+    border-radius:50%;
+
+
+
+}
+
+
+
+
+.love-heart::before{
+
+
+    top:-60px;
+
+    left:0;
+
+
+}
+
+
+
+
+.love-heart::after{
+
+
+    left:60px;
+
+    top:0;
+
+
+}
+
+
+
+
+
+
+/* 爱心玻璃流光 */
+
+
+.love-heart{
+
+
+    animation:
+
+
+    heartFloat 5s ease-in-out infinite;
+
+
+}
+
+
+
+.love-heart:global::after{
+
+
+    animation:none;
+
+}
+
+
+
+
+@keyframes heartFloat{
+
+
+    0%,100%{
+
+
+        transform:
+
+        rotate(-45deg)
+
+        translateY(0);
+
+
+    }
+
+
+    50%{
+
+
+        transform:
+
+        rotate(-45deg)
+
+        translateY(-8px);
+
+
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   流星系统
+========================== */
+
+
+
+.shooting-stars{
+
+
+    position:absolute;
+
+
+    inset:0;
+
+
+    overflow:hidden;
+
+
+}
+
+
+
+
+
+.meteor{
+
+
+    position:absolute;
+
+
+    width:6px;
+
+
+    height:6px;
+
+
+    background:white;
+
+
+    border-radius:50%;
+
+
+    box-shadow:
+
+
+    0 0 15px white,
+
+
+    0 0 30px rgba(255,255,255,.8);
+
+
+
+    opacity:0;
+
+
+
+}
+
+
+
+
+
+.meteor::after{
+
+
+    content:"";
+
+
+    position:absolute;
+
+
+
+    right:8px;
+
+
+    top:50%;
+
+
+
+    width:120px;
+
+
+    height:2px;
+
+
+
+    transform:
+
+    translateY(-50%);
+
+
+
+    background:
+
+
+    linear-gradient(
+
+    90deg,
+
+    transparent,
+
+    rgba(255,255,255,.8)
+
+    );
+
+
+
+}
+
+
+
+
+
+
+/* 左上飞向右下 */
+
+
+.meteor-one{
+
+
+    top:10%;
+
+    left:10%;
+
+
+    animation:
+
+    meteorMove 5s linear infinite;
+
+
+}
+
+
+
+.meteor-two{
+
+
+    top:20%;
+
+    left:60%;
+
+
+    animation:
+
+    meteorMove 7s linear infinite 2s;
+
+
+}
+
+
+
+.meteor-three{
+
+
+    top:5%;
+
+    left:80%;
+
+
+    animation:
+
+    meteorMove 6s linear infinite 4s;
+
+
+}
+
+
+
+.meteor-four{
+
+
+    top:35%;
+
+    left:30%;
+
+
+    animation:
+
+    meteorMove 8s linear infinite 3s;
+
+
+}
+
+
+
+
+
+
+.meteor-five,
+.meteor-six,
+.meteor-seven,
+.meteor-eight{
+
+
+    display:block;
+
+
+}
+
+
+
+.meteor-five{
+
+
+    animation:
+
+    meteorMove 9s linear infinite 5s;
+
+
+}
+
+
+.meteor-six{
+
+
+    animation:
+
+    meteorMove 7s linear infinite 6s;
+
+
+}
+
+
+
+.meteor-seven{
+
+
+    animation:
+
+    meteorMove 10s linear infinite 8s;
+
+
+}
+
+
+
+.meteor-eight{
+
+
+    animation:
+
+    meteorMove 8s linear infinite 10s;
+
+
+}
+
+
+
+
+
+
+@keyframes meteorMove{
+
+
+    0%{
+
+
+        opacity:0;
+
+
+        transform:
+
+        translate(0,0)
+
+        rotate(45deg);
+
+
+    }
+
+
+
+    10%{
+
+
+        opacity:1;
+
+
+    }
+
+
+
+
+    100%{
+
+
+        opacity:0;
+
+
+        transform:
+
+
+        translate(250px,250px)
+
+        rotate(45deg);
+
+
+    }
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   在线状态
+========================== */
+
+
+.status{
+
+
+    display:flex;
+
+
+    align-items:center;
+
+
+    justify-content:center;
+
+
+    gap:8px;
+
+
+}
+
+
+
+#status-dot{
+
+
+    width:10px;
+
+
+    height:10px;
+
+
+    border-radius:50%;
+
+
+    background:#aaa;
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   时间轴
+========================== */
+
+
+.timeline{
+
+
+    margin-top:20px;
+
+
+}
+
+
+
+.timeline-item{
+
+
+    display:flex;
+
+
+    gap:15px;
+
+
+    margin-bottom:25px;
+
+
+}
+
+
+
+
+.timeline-dot{
+
+
+    width:12px;
+
+
+    height:12px;
+
+
+    margin-top:8px;
+
+
+    border-radius:50%;
+
+
+    background:#ff9acb;
+
+
+    box-shadow:
+
+
+    0 0 15px
+
+    rgba(255,130,190,.8);
+
+
+}
+
+
+
+.timeline-card{
+
+
+    flex:1;
+
+
+    background:
+
+
+    rgba(255,255,255,.35);
+
+
+
+    border-radius:20px;
+
+
+    padding:15px;
+
+
+}
+
+
+
+
+
+
+
+/* ==========================
+   退出按钮
+========================== */
+
+
+.logout{
+
+
+    margin-top:20px;
+
+
+    color:white;
+
+
+    text-decoration:none;
+
+
+    padding:12px 35px;
+
+
+    border-radius:30px;
+
+
+
+    background:
+
+
+    rgba(255,255,255,.35);
+
+
+
+    backdrop-filter:blur(20px);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+/* ==========================
+   鼠标玻璃反光
+   桌面端开启
+========================== */
+
+
+@media(min-width:800px){
+
+
+.days-card::selection,
+.online-box::selection,
+.memory-box::selection{
+
+
+background:none;
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+/* ==========================
+   手机优化
+========================== */
+
+
+@media(max-width:600px){
+
+
+    .home-card{
+
+
+        width:92%;
+
+
+        padding-top:40px;
+
+
+    }
+
+
+
+
+    .days-number{
+
+
+        font-size:60px;
+
+
+    }
+
+
+
+
+    .meteor:nth-child(n+5){
+
+
+        display:none;
+
+
+    }
+
+
+
+}
+.days-card::after,
+.online-box::after,
+.memory-box::after{
+
+background:
+
+radial-gradient(
+
+circle at var(--light-x) var(--light-y),
+
+rgba(255,255,255,.45),
+
+transparent 150px
+
+);
+
+
+}
