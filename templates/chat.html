@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我们的聊天</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style>
+
+.chat-header .avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.chat-header .avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+
+.chat-input{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+
+.plus-box{
+    position:relative;
+}
+
+
+.plus-menu{
+    display:none;
+    position:absolute;
+    bottom:55px;
+    left:0;
+    width:130px;
+    padding:10px;
+    border-radius:18px;
+    background:rgba(255,255,255,0.75);
+    backdrop-filter:blur(20px);
+}
+
+
+.plus-menu button{
+    width:100%;
+    margin:5px 0;
+}
+
+
+.plus-menu.show{
+    display:block;
+}
+
+
+.chat-image{
+    max-width:220px;
+    border-radius:16px;
+}
+
+
+</style>
+
+</head>
+
+
+<body class="chat-page">
+
+
+<div class="chat-background">
+
+<div class="chat-light pink"></div>
+<div class="chat-light blue"></div>
+<div class="chat-light purple"></div>
+
+</div>
+
+
+
+
+<main class="chat-container">
+
+
+
+<header class="chat-header">
+
+
+<a href="/home" class="back">
+
+←
+
+</a>
+
+
+
+<div class="avatar">
+
+<img
+
+src="/static/uploads/avatar/{{ other_profile.avatar }}"
+
+onerror="this.src='/static/uploads/avatar/default.png'"
+
+>
+
+</div>
+
+
+
+
+<div class="chat-user">
+
+<h2>
+
+{{ other }}
+
+</h2>
+
+
+<p>
+
+🟢 在线
+
+<span id="unread"></span>
+
+</p>
+
+
+</div>
+
+
+</header>
+
+
+
+
+
+<section class="messages" id="messages">
+
+</section>
+
+
+
+
+
+
+<footer class="chat-input">
+
+
+
+<div class="plus-box">
+
+
+<button
+
+class="plus-btn"
+
+onclick="toggleMenu()"
+
+>
+
++
+
+</button>
+
+
+
+<div id="plus-menu" class="plus-menu">
+
+
+<button onclick="chooseImage()">
+
+🖼 图片
+
+</button>
+
+
+<button onclick="chooseFile()">
+
+📄 文件
+
+</button>
+
+
+<button onclick="camera()">
+
+📷 拍照
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<input
+
+type="file"
+
+id="image"
+
+accept="image/*"
+
+hidden
+
+>
+
+
+
+
+
+<input
+
+id="message"
+
+placeholder="输入消息..."
+
+autocomplete="off"
+
+>
+
+
+<button class="voice-btn">
+
+🎤
+
+</button>
+
+
+<button class="emoji-btn" onclick="emojiOpen()">
+
+😊
+
+</button>
+
+
+</footer>
+
+
+</main>
+<script>
+
+
+const currentUser="{{ user }}";
+
+const socket=io();
+
+
+
+
+
+function addBubble(msg){
+
+
+const box=document.getElementById(
+"messages"
+);
+
+
+
+const div=document.createElement(
+"div"
+);
+
+
+
+div.className=
+
+msg.sender===currentUser
+
+?
+
+"bubble mine"
+
+:
+
+"bubble other";
+
+
+
+
+
+if(msg.type==="image"){
+
+
+div.innerHTML=`
+
+<img
+
+src="/static/uploads/chat/${msg.content}"
+
+class="chat-image"
+
+onclick="window.open(this.src)"
+
+>
+
+
+<span>
+
+${msg.time}
+
+</span>
+
+`;
+
+
+
+}else{
+
+
+div.innerHTML=`
+
+<p>
+
+${msg.content}
+
+</p>
+
+
+<span>
+
+${msg.time}
+
+</span>
+
+`;
+
+
+
+}
+
+
+
+box.appendChild(div);
+
+
+box.scrollTop=box.scrollHeight;
+
+
+}
+
+
+
+
+
+
+
+// 实时消息
+
+
+socket.on(
+
+"receive_message",
+
+function(msg){
+
+
+addBubble(msg);
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+// 历史消息
+
+
+function loadMessages(){
+
+
+fetch("/chat/messages")
+
+
+.then(res=>res.json())
+
+
+.then(data=>{
+
+
+const box=document.getElementById(
+"messages"
+);
+
+
+
+box.innerHTML="";
+
+
+
+data.forEach(msg=>{
+
+
+addBubble(msg);
+
+
+});
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+
+// 发送文字
+
+
+function sendMessage(){
+
+
+const input=document.getElementById(
+"message"
+);
+
+
+
+const text=input.value.trim();
+
+
+
+if(!text){
+
+return;
+
+}
+
+
+
+socket.emit(
+
+"send_message",
+
+{
+
+sender:currentUser,
+
+content:text,
+
+type:"text"
+
+}
+
+);
+
+
+
+input.value="";
+
+
+}
+
+
+
+
+
+
+
+
+// 加号菜单
+
+
+function toggleMenu(){
+
+
+document
+
+.getElementById(
+"plus-menu"
+)
+
+.classList.toggle(
+"show"
+);
+
+
+}
+
+
+
+
+
+
+
+
+// 图片
+
+
+function chooseImage(){
+
+
+document
+
+.getElementById(
+"image"
+)
+
+.click();
+
+
+}
+
+
+
+
+
+document
+
+.getElementById(
+"image"
+)
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+const file=this.files[0];
+
+
+if(!file){
+
+return;
+
+}
+
+
+
+const form=new FormData();
+
+
+
+form.append(
+"image",
+file
+);
+
+
+
+
+fetch(
+
+"/chat/upload",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+
+// 文件预留
+
+
+function chooseFile(){
+
+
+alert(
+"文件功能开发中"
+);
+
+
+}
+
+
+
+
+
+
+
+// 拍照预留
+
+
+function camera(){
+
+
+alert(
+"拍照功能开发中"
+);
+
+
+}
+
+
+
+
+
+
+
+// 表情预留
+
+
+function emojiOpen(){
+
+
+alert(
+"表情功能开发中"
+);
+
+
+}
+
+
+
+
+
+
+
+// 回车发送
+
+
+document
+
+.getElementById(
+"message"
+)
+
+.addEventListener(
+
+"keydown",
+
+function(e){
+
+
+if(e.key==="Enter"){
+
+
+sendMessage();
+
+
+}
+
+
+}
+
+);
+
+
+
+
+
+
+
+// 未读
+
+
+function loadUnread(){
+
+
+fetch("/chat/unread")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+let el=document.getElementById(
+"unread"
+);
+
+
+
+if(data.count>0){
+
+el.innerHTML=" · "+data.count+"条新消息";
+
+}else{
+
+el.innerHTML="";
+
+}
+
+
+});
+
+
+}
+
+
+
+
+
+loadMessages();
+
+loadUnread();
+
+
+
+setInterval(
+
+loadUnread,
+
+3000
+
+);
+
+
+
+</script>
+
+
+</body>
+
+</html>

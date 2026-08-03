@@ -1,36 +1,20 @@
 import sqlite3
-import os
 from datetime import datetime
+import time
 
 
 DB_PATH = "data/love.db"
 
 
-
-# ==========================
-# 数据库连接
-# ==========================
-
 def get_db():
-
-    os.makedirs(
-        "data",
-        exist_ok=True
-    )
-
 
     conn = sqlite3.connect(
         DB_PATH
     )
 
-
     conn.row_factory = sqlite3.Row
 
-
     return conn
-
-
-
 
 
 
@@ -40,14 +24,10 @@ def get_db():
 
 def init_db():
 
-
     conn = get_db()
 
     cursor = conn.cursor()
 
-
-
-    # 用户
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS users(
@@ -56,33 +36,24 @@ def init_db():
 
         username TEXT UNIQUE,
 
-        password TEXT,
-
-        created TEXT
+        password TEXT
 
     )
     """)
 
 
-
-    # 在线状态
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS status(
 
-        username TEXT UNIQUE,
+        username TEXT PRIMARY KEY,
 
-        online INTEGER DEFAULT 0,
+        online INTEGER,
 
         last_time REAL
 
     )
     """)
 
-
-
-
-    # 登录记录
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS login_logs(
@@ -101,10 +72,6 @@ def init_db():
     """)
 
 
-
-
-    # 设备
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS devices(
 
@@ -122,10 +89,6 @@ def init_db():
     """)
 
 
-
-
-    # 网站访问
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS visits(
 
@@ -139,14 +102,63 @@ def init_db():
     """)
 
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS messages(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        sender TEXT,
+
+        receiver TEXT,
+
+        content TEXT,
+
+        type TEXT DEFAULT 'text',
+
+        created TEXT,
+
+        read_status INTEGER DEFAULT 0
+
+    )
+    """)
+
+
+    # ==========================
+    # 个人资料
+    # ==========================
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS profiles(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        username TEXT UNIQUE,
+
+        nickname TEXT,
+
+        avatar TEXT DEFAULT 'default.png',
+
+        birthday_type TEXT DEFAULT 'solar',
+
+        birthday TEXT,
+
+        lunar_month TEXT,
+
+        lunar_day TEXT,
+
+        lunar_solar_date TEXT,
+
+        signature TEXT,
+
+        created TEXT
+
+    )
+    """)
+
 
     conn.commit()
 
     conn.close()
-
-
-
-
 
 
 
@@ -154,69 +166,26 @@ def init_db():
 # 用户
 # ==========================
 
-
 def add_user(username,password):
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    cursor.execute(
-
+    conn.execute(
         """
-
         INSERT OR IGNORE INTO users
-
-        (username,password,created)
-
-        VALUES(?,?,?)
-
-        """,
-
         (
-
             username,
-
-            password,
-
-            datetime.now().strftime(
-                "%Y-%m-%d"
-            )
-
+            password
         )
 
-    )
-
-
-
-    cursor.execute(
-
-        """
-
-        INSERT OR IGNORE INTO status
-
-        (username,online,last_time)
-
-        VALUES(?,?,?)
+        VALUES(?,?)
 
         """,
-
         (
-
             username,
-
-            0,
-
-            0
-
+            password
         )
-
     )
-
-
 
     conn.commit()
 
@@ -224,21 +193,12 @@ def add_user(username,password):
 
 
 
-
-
 def get_user(username):
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    result=cursor.execute(
-
+    user=conn.execute(
         """
-
         SELECT *
 
         FROM users
@@ -246,64 +206,64 @@ def get_user(username):
         WHERE username=?
 
         """,
-
-        (username,)
-
+        (
+            username,
+        )
     ).fetchone()
-
-
 
     conn.close()
 
-
-    return result
-
-
-
-
+    return user
 
 
 
 # ==========================
-# 状态
+# 个人资料系统
 # ==========================
 
-
-def update_status(username,online):
-
+def create_profile(username):
 
     conn=get_db()
 
     cursor=conn.cursor()
 
 
-
     cursor.execute(
-
         """
+        INSERT OR IGNORE INTO profiles
 
-        UPDATE status
+        (
+            username,
+            nickname,
+            avatar,
+            birthday_type,
+            birthday,
+            lunar_month,
+            lunar_day,
+            lunar_solar_date,
+            signature,
+            created
+        )
 
-        SET online=?,
-
-        last_time=?
-
-        WHERE username=?
+        VALUES(?,?,?,?,?,?,?,?,?,?)
 
         """,
 
         (
-
-            online,
-
-            datetime.now().timestamp(),
-
-            username
-
+            username,
+            username,
+            "default.png",
+            "solar",
+            "",
+            "",
+            "",
+            "",
+            "",
+            datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
         )
-
     )
-
 
 
     conn.commit()
@@ -312,21 +272,154 @@ def update_status(username,online):
 
 
 
+def get_profile(username):
+
+    conn=get_db()
 
 
-def get_status(username):
+    profile=conn.execute(
+        """
+        SELECT *
 
+        FROM profiles
+
+        WHERE username=?
+
+        """,
+        (
+            username,
+        )
+
+    ).fetchone()
+
+
+    conn.close()
+
+    return profile
+
+
+
+def update_profile(
+    username,
+    nickname,
+    birthday_type,
+    birthday,
+    lunar_month,
+    lunar_day,
+    lunar_solar_date,
+    signature
+):
 
     conn=get_db()
 
     cursor=conn.cursor()
 
 
-
-    result=cursor.execute(
-
+    cursor.execute(
         """
+        UPDATE profiles
 
+        SET
+
+        nickname=?,
+
+        birthday_type=?,
+
+        birthday=?,
+
+        lunar_month=?,
+
+        lunar_day=?,
+
+        lunar_solar_date=?,
+
+        signature=?
+
+        WHERE username=?
+
+        """,
+
+        (
+            nickname,
+            birthday_type,
+            birthday,
+            lunar_month,
+            lunar_day,
+            lunar_solar_date,
+            signature,
+            username
+        )
+    )
+
+
+    conn.commit()
+
+    conn.close()
+
+
+
+def update_avatar(username,avatar):
+
+    conn=get_db()
+
+    conn.execute(
+        """
+        UPDATE profiles
+
+        SET avatar=?
+
+        WHERE username=?
+
+        """,
+        (
+            avatar,
+            username
+        )
+    )
+
+    conn.commit()
+
+    conn.close()
+# ==========================
+# 状态
+# ==========================
+
+def update_status(username,online):
+
+    conn=get_db()
+
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO status
+
+        (
+            username,
+            online,
+            last_time
+        )
+
+        VALUES(?,?,?)
+
+        """,
+        (
+            username,
+            online,
+            time.time()
+        )
+    )
+
+    conn.commit()
+
+    conn.close()
+
+
+
+def get_status(username):
+
+    conn=get_db()
+
+    data=conn.execute(
+        """
         SELECT *
 
         FROM status
@@ -334,21 +427,14 @@ def get_status(username):
         WHERE username=?
 
         """,
-
-        (username,)
-
+        (
+            username,
+        )
     ).fetchone()
-
-
 
     conn.close()
 
-
-    return result
-
-
-
-
+    return data
 
 
 
@@ -356,46 +442,33 @@ def get_status(username):
 # 登录日志
 # ==========================
 
-
 def add_login_log(username,ip,user_agent):
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    cursor.execute(
-
+    conn.execute(
         """
-
         INSERT INTO login_logs
 
-        (username,ip,user_agent,time)
+        (
+            username,
+            ip,
+            user_agent,
+            time
+        )
 
         VALUES(?,?,?,?)
 
         """,
-
         (
-
             username,
-
             ip,
-
             user_agent,
-
             datetime.now().strftime(
-
                 "%Y-%m-%d %H:%M:%S"
-
             )
-
         )
-
     )
-
 
     conn.commit()
 
@@ -403,92 +476,58 @@ def add_login_log(username,ip,user_agent):
 
 
 
-
-
-
 def get_login_logs():
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    result=cursor.execute(
-
+    data=conn.execute(
         """
-
         SELECT *
 
         FROM login_logs
 
         ORDER BY id DESC
 
-        LIMIT 20
-
         """
-
     ).fetchall()
-
-
 
     conn.close()
 
-
-    return result
-
-
-
-
+    return data
 
 
 
 # ==========================
-# 设备记录
+# 设备
 # ==========================
 
-
-def add_device(username,device_name,device_id):
-
+def add_device(username,name,device_id):
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    cursor.execute(
-
+    conn.execute(
         """
-
         INSERT INTO devices
 
-        (username,device_name,device_id,last_time)
+        (
+            username,
+            device_name,
+            device_id,
+            last_time
+        )
 
         VALUES(?,?,?,?)
 
         """,
-
         (
-
             username,
-
-            device_name,
-
+            name,
             device_id,
-
             datetime.now().strftime(
-
                 "%Y-%m-%d %H:%M:%S"
-
             )
-
         )
-
     )
-
-
 
     conn.commit()
 
@@ -496,88 +535,54 @@ def add_device(username,device_name,device_id):
 
 
 
-
-
-
 def get_devices():
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    result=cursor.execute(
-
+    data=conn.execute(
         """
-
         SELECT *
 
         FROM devices
 
         ORDER BY id DESC
 
-        LIMIT 20
-
         """
-
     ).fetchall()
-
-
 
     conn.close()
 
-
-    return result
-
-
-
-
+    return data
 
 
 
 # ==========================
-# 网站访问
+# 访问统计
 # ==========================
-
 
 def add_visit(ip):
 
-
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    cursor.execute(
-
+    conn.execute(
         """
-
         INSERT INTO visits
 
-        (ip,time)
+        (
+            ip,
+            time
+        )
 
         VALUES(?,?)
 
         """,
-
         (
-
             ip,
-
             datetime.now().strftime(
-
                 "%Y-%m-%d %H:%M:%S"
-
             )
-
         )
-
     )
-
-
 
     conn.commit()
 
@@ -585,65 +590,35 @@ def add_visit(ip):
 
 
 
-
-
-
-
 def get_visit_count():
-
 
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
-    result=cursor.execute(
-
+    count=conn.execute(
         """
-
         SELECT COUNT(*)
 
         FROM visits
 
         """
-
     ).fetchone()[0]
-
-
 
     conn.close()
 
-
-    return result
-
-
-
-
+    return count
 
 
 
 def get_today_visit_count():
 
-
     conn=get_db()
 
-    cursor=conn.cursor()
-
-
-
     today=datetime.now().strftime(
-
         "%Y-%m-%d"
-
     )
 
-
-
-    result=cursor.execute(
-
+    count=conn.execute(
         """
-
         SELECT COUNT(*)
 
         FROM visits
@@ -651,18 +626,152 @@ def get_today_visit_count():
         WHERE time LIKE ?
 
         """,
-
         (
-
             today+"%",
-
         )
-
     ).fetchone()[0]
 
+    conn.close()
 
+    return count
+
+
+
+# ==========================
+# 聊天系统
+# ==========================
+
+def add_message(sender,receiver,content):
+
+    conn=get_db()
+
+    conn.execute(
+        """
+        INSERT INTO messages
+
+        (
+            sender,
+            receiver,
+            content,
+            type,
+            created,
+            read_status
+        )
+
+        VALUES(?,?,?,?,?,?)
+
+        """,
+        (
+            sender,
+            receiver,
+            content,
+            "text",
+            datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            0
+        )
+    )
+
+    conn.commit()
 
     conn.close()
 
 
-    return result
+
+def add_image_message(sender,receiver,filename):
+
+    conn=get_db()
+
+    conn.execute(
+        """
+        INSERT INTO messages
+
+        (
+            sender,
+            receiver,
+            content,
+            type,
+            created,
+            read_status
+        )
+
+        VALUES(?,?,?,?,?,?)
+
+        """,
+        (
+            sender,
+            receiver,
+            filename,
+            "image",
+            datetime.now().strftime(
+                "%Y-%m-%d %H:%M:%S"
+            ),
+            0
+        )
+    )
+
+    conn.commit()
+
+    conn.close()
+
+
+
+def get_messages(user1,user2):
+
+    conn=get_db()
+
+    data=conn.execute(
+        """
+        SELECT *
+
+        FROM messages
+
+        WHERE
+
+        (sender=? AND receiver=?)
+
+        OR
+
+        (sender=? AND receiver=?)
+
+        ORDER BY id ASC
+
+        """,
+        (
+            user1,
+            user2,
+            user2,
+            user1
+        )
+    ).fetchall()
+
+    conn.close()
+
+    return data
+
+
+
+def get_unread_count(user):
+
+    conn=get_db()
+
+    count=conn.execute(
+        """
+        SELECT COUNT(*)
+
+        FROM messages
+
+        WHERE receiver=?
+
+        AND read_status=0
+
+        """,
+        (
+            user,
+        )
+    ).fetchone()[0]
+
+    conn.close()
+
+    return count

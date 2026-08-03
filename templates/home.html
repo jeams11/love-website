@@ -5,11 +5,11 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>我们的空间</title>
 
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
 
 </head>
 
@@ -17,62 +17,477 @@
 <body class="home-page">
 
 
-
-<!-- 动态背景 -->
-
 <div class="background">
 
+<div class="light light-one"></div>
+<div class="light light-two"></div>
+<div class="light light-three"></div>
+
+<div class="stars">
+
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+<div class="star"></div>
+
+</div>
+
+</div>
 
 
-    <div class="ambient"></div>
+
+<div class="home-container">
 
 
 
-    <div class="light light-one"></div>
+<div class="welcome">
 
-    <div class="light light-two"></div>
+<h1>
+我们的空间
+</h1>
 
-    <div class="light light-three"></div>
+<p>
+{{ user }} ❤️ {{ other }}
+</p>
 
-
-
-
-
-
-    <!-- 星空 -->
-
-    <div class="stars">
-
-
-        <div class="star star-one"></div>
-
-        <div class="star star-two"></div>
-
-        <div class="star star-three"></div>
-
-        <div class="star star-four"></div>
-
-        <div class="star star-five"></div>
-
-        <div class="star star-six"></div>
-
-        <div class="star star-seven"></div>
-
-        <div class="star star-eight"></div>
-
-
-    </div>
+</div>
 
 
 
 
 
+<!-- 我们的信息 -->
+
+<div class="widget profile-widget">
 
 
-    <!-- 动态流星 -->
+<div class="profile-header">
 
-    <div class="shooting-stars"></div>
+<h2>
+我们的信息
+</h2>
 
+
+<a href="{{ url_for('profile') }}"
+class="mini-edit">
+
+修改资料
+
+</a>
+
+
+</div>
+
+
+
+
+
+<div class="couple-profile">
+
+
+
+<div class="person-card">
+
+
+<img
+
+class="profile-avatar"
+
+src="{{ url_for('static',filename='uploads/avatar/'+profile.avatar) }}"
+
+onerror="this.src='/static/uploads/avatar/default.png'"
+
+>
+
+
+<h3>
+{{ profile.nickname }}
+</h3>
+
+
+
+<div class="birthday-box">
+
+
+<p>
+公历：
+
+{{ profile.birthday if profile.birthday else "未填写" }}
+
+</p>
+
+
+<p>
+农历：
+
+{% if profile.lunar_month %}
+
+{{ profile.lunar_month }}月初{{ profile.lunar_day }}
+
+{% else %}
+
+未填写
+
+{% endif %}
+
+</p>
+
+
+{% if profile.lunar_solar_date %}
+
+<p>
+
+对应公历：
+
+{{ profile.lunar_solar_date }}
+
+</p>
+
+{% endif %}
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="person-card">
+
+
+<img
+
+class="profile-avatar"
+
+src="{{ url_for('static',filename='uploads/avatar/'+other_profile.avatar) }}"
+
+onerror="this.src='/static/uploads/avatar/default.png'"
+
+>
+
+
+
+<h3>
+
+{{ other_profile.nickname }}
+
+</h3>
+
+
+
+
+<div class="birthday-box">
+
+
+<p>
+
+公历：
+
+{{ other_profile.birthday if other_profile.birthday else "未填写" }}
+
+</p>
+
+
+
+<p>
+
+农历：
+
+{% if other_profile.lunar_month %}
+
+{{ other_profile.lunar_month }}月初{{ other_profile.lunar_day }}
+
+{% else %}
+
+未填写
+
+{% endif %}
+
+</p>
+
+
+
+{% if other_profile.lunar_solar_date %}
+
+<p>
+
+对应公历：
+
+{{ other_profile.lunar_solar_date }}
+
+</p>
+
+{% endif %}
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- 对方状态 -->
+
+<div class="widget status-widget">
+
+
+<h2>
+
+{{ other }} 的状态
+
+</h2>
+
+
+<div class="status">
+
+
+<span id="status-dot"></span>
+
+
+<span id="status-text">
+
+检测中...
+
+</span>
+
+
+</div>
+
+
+
+<p class="last-online">
+
+<span id="last-online">
+
+</span>
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 在一起时间 -->
+
+
+<div class="widget love-days">
+
+
+<h2>
+
+我们已经在一起
+
+</h2>
+
+
+
+<div class="days-number">
+
+{{ days }}
+
+</div>
+
+
+
+<div class="days-unit">
+
+天
+
+</div>
+
+
+
+<p>
+
+开始于 2026年6月5日 星期五
+
+</p>
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<!-- 回忆 -->
+
+<div class="widget memory-widget">
+
+
+<h2>
+
+我们的回忆
+
+</h2>
+
+
+
+<div class="memory-scroll">
+
+
+{% for memory in memories %}
+
+
+<div class="memory-item">
+
+
+<div class="memory-dot"></div>
+
+
+
+<div class="memory-content">
+
+
+<h3>
+
+{{ memory.title }}
+
+</h3>
+
+
+<p>
+
+{{ memory.content }}
+
+</p>
+
+
+<span>
+
+{{ memory.date }}
+
+</span>
+
+
+</div>
+
+
+</div>
+
+
+{% endfor %}
+
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- 退出登录 -->
+
+
+<a href="{{ url_for('logout') }}"
+
+class="logout-button">
+
+退出登录
+
+</a>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+<div class="app-tabbar">
+
+
+<a href="{{ url_for('home') }}"
+
+class="tab-item tab-active">
+
+
+<span>
+
+⌂
+
+</span>
+
+首页
+
+
+</a>
+
+
+
+
+
+<a href="{{ url_for('chat') }}"
+
+class="tab-item">
+
+
+<span>
+
+♡
+
+</span>
+
+聊天
+
+
+</a>
+
+
+
+
+
+<a href="{{ url_for('profile') }}"
+
+class="tab-item">
+
+
+<span>
+
+○
+
+</span>
+
+资料
+
+
+</a>
 
 
 
@@ -86,447 +501,96 @@
 
 
 
-<main class="home-container">
-
-
-
-
-
-
-    <!-- 欢迎 -->
-
-
-    <header class="welcome">
-
-
-        <h1>
-
-            欢迎回来
-
-        </h1>
-
-
-
-        <p>
-
-            {{ user }}
-
-        </p>
-
-
-
-    </header>
-
-
-
-
-
-
-
-
-
-    <!-- 时间 Widget -->
-
-
-    <section class="widget days-widget">
-
-
-        <div class="glass-shine"></div>
-
-
-
-
-        <p class="widget-label">
-
-            我们已经在一起
-
-        </p>
-
-
-
-
-
-        <div class="days-number" id="days">
-
-            0
-
-        </div>
-
-
-
-
-
-        <p class="days-word">
-
-            天了
-
-        </p>
-
-
-
-
-
-
-        <div class="love-symbol">
-
-
-            ♡
-
-
-        </div>
-
-
-
-
-
-
-        <p class="date-text">
-
-
-            纪念日：2026年6月5日
-
-
-        </p>
-
-
-
-
-
-    </section>
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- 状态 Widget -->
-
-
-
-    <section class="widget status-widget">
-
-
-        <div class="glass-shine"></div>
-
-
-
-        <h2>
-
-            对方状态
-
-        </h2>
-
-
-
-
-
-
-        <p class="online-user">
-
-
-            {{ other }}
-
-
-        </p>
-
-
-
-
-
-
-
-        <div class="status">
-
-
-            <span id="status-dot"></span>
-
-
-
-            <span id="status-text">
-
-                检测中
-
-            </span>
-
-
-
-        </div>
-
-
-
-
-
-
-
-        <p class="last-online">
-
-
-            最后上线：
-
-            <span id="last-time">
-
-                暂无记录
-
-            </span>
-
-
-        </p>
-
-
-
-
-
-
-    </section>
-
-
-
-
-
-
-
-
-
-    <!-- 回忆 Widget -->
-
-
-    <section class="widget memory-widget">
-
-
-
-        <div class="glass-shine"></div>
-
-
-
-
-
-        <h2>
-
-            我们的回忆
-
-        </h2>
-
-
-
-
-
-
-
-        <div class="timeline">
-
-
-
-
-
-
-            <div class="timeline-item">
-
-
-
-                <div class="timeline-dot"></div>
-
-
-
-
-
-                <div class="timeline-content">
-
-
-
-                    <h3>
-
-                        2026年6月5日
-
-
-                    </h3>
-
-
-
-
-
-                    <p>
-
-                        我们的故事开始
-
-
-                    </p>
-
-
-
-
-                </div>
-
-
-
-
-            </div>
-
-
-
-
-
-
-
-
-
-            <div class="timeline-item">
-
-
-
-                <div class="timeline-dot"></div>
-
-
-
-
-
-                <div class="timeline-content">
-
-
-
-                    <h3>
-
-                        未来
-
-
-                    </h3>
-
-
-
-
-
-                    <p>
-
-                        等待更多美好回忆
-
-
-                    </p>
-
-
-
-
-                </div>
-
-
-
-
-            </div>
-
-
-
-
-
-
-        </div>
-
-
-
-
-
-
-    </section>
-
-
-
-
-
-
-
-
-
-    <a class="logout" href="/logout">
-
-
-        退出登录
-
-
-    </a>
-
-
-
-
-
-</main>
-
-
-
-
-
-
-
-
-
-<script src="/static/js/app.js"></script>
-
-
-
-
-
-
 <script>
 
 
-const startDate = new Date("2026-06-05");
+function updateStatus(){
+
+
+fetch("/status")
+
+.then(r=>r.json())
+
+.then(data=>{
+
+
+const text=document.getElementById("status-text");
+
+const last=document.getElementById("last-online");
+
+const dot=document.getElementById("status-dot");
 
 
 
-function updateDays(){
+if(data.online){
 
 
-    const now = new Date();
+text.innerHTML="🟢 在线";
+
+dot.style.background="#22c55e";
 
 
-    const diff = now - startDate;
+}else{
 
 
+text.innerHTML="⚪ 离线";
 
-    const days = Math.floor(
-
-        diff /
-
-        (1000 * 60 * 60 * 24)
-
-    );
-
-
-
-    const element = document.getElementById("days");
-
-
-
-    if(element){
-
-        element.innerHTML = days;
-
-    }
+dot.style.background="#94a3b8";
 
 
 }
 
 
 
-updateDays();
+last.innerHTML="最后在线："+data.last;
+
+
+});
+
+
+}
+
+
+
+
+
+function heartbeat(){
+
+fetch("/heartbeat");
+
+}
+
+
 
 
 
 setInterval(
 
-    updateDays,
+updateStatus,
 
-    3600000
+5000
 
 );
 
 
 
+setInterval(
+
+heartbeat,
+
+10000
+
+);
+
+
+
+heartbeat();
+
+updateStatus();
+
+
+
 </script>
-
-
 
 
 

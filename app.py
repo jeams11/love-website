@@ -1,14 +1,29 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+# app.py 最终版（第 1/3）
+
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    jsonify
+)
+
 from flask_bcrypt import Bcrypt
+from flask_socketio import SocketIO, emit
 from functools import wraps
 from datetime import datetime
+
 import time
+import os
 import psutil
 import platform
-import subprocess
+
 
 from database import (
     init_db,
+    get_db,
     add_user,
     get_user,
     update_status,
@@ -19,7 +34,15 @@ from database import (
     get_login_logs,
     get_devices,
     get_visit_count,
-    get_today_visit_count
+    get_today_visit_count,
+    add_message,
+    get_messages,
+    add_image_message,
+    get_unread_count,
+    create_profile,
+    get_profile,
+    update_profile,
+    update_avatar
 )
 
 
@@ -27,56 +50,43 @@ app = Flask(__name__)
 
 app.secret_key = "love-website-secret-key"
 
+
 bcrypt = Bcrypt(app)
 
 
-# ==========================
-# 系统监控缓存
-# ==========================
-
-system_history = []
-
-
-# ==========================
-# 管理员账号
-# ==========================
-
-ADMIN_USERNAME = "admin"
-
-ADMIN_PASSWORD = "101221"
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*"
+)
 
 
-# ==========================
-# 初始化数据库
-# ==========================
+ADMIN_USERNAME="admin"
+ADMIN_PASSWORD="101221"
+
+
+system_history=[]
+
 
 init_db()
 
 
 
-# ==========================
-# 默认用户
-# ==========================
-
 def create_default_users():
 
-    users = {
-
-        "泽泽": "110702",
-
-        "真真": "110202"
-
+    users={
+        "泽泽":"110702",
+        "真真":"110202"
     }
 
 
-    for username, password in users.items():
+    for username,password in users.items():
 
-        user = get_user(username)
+        user=get_user(username)
 
 
         if not user:
 
-            hashed = bcrypt.generate_password_hash(
+            hashed=bcrypt.generate_password_hash(
                 password
             ).decode("utf-8")
 
@@ -87,19 +97,18 @@ def create_default_users():
             )
 
 
+        create_profile(username)
+
+
 
 create_default_users()
 
 
 
-# ==========================
-# 用户权限
-# ==========================
-
 def login_required(func):
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args,**kwargs):
 
         if "user" not in session:
 
@@ -107,18 +116,20 @@ def login_required(func):
                 url_for("login")
             )
 
-
-        return func(*args, **kwargs)
-
+        return func(
+            *args,
+            **kwargs
+        )
 
     return wrapper
+
 
 
 
 def admin_required(func):
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args,**kwargs):
 
         if not session.get("admin"):
 
@@ -126,40 +137,42 @@ def admin_required(func):
                 url_for("admin_login")
             )
 
-
-        return func(*args, **kwargs)
-
+        return func(
+            *args,
+            **kwargs
+        )
 
     return wrapper
 
 
 
-# ==========================
-# 时间格式
-# ==========================
+
+
+def get_other_user(username):
+
+    return "真真" if username=="泽泽" else "泽泽"
+
+
+
 
 def format_time(timestamp):
 
     if not timestamp:
-
         return "暂无记录"
 
 
-    diff = time.time() - timestamp
+    diff=time.time()-timestamp
 
 
-    if diff < 60:
-
+    if diff<60:
         return "刚刚"
 
 
-    elif diff < 3600:
-
+    if diff<3600:
         return f"{int(diff/60)}分钟前"
 
 
-    elif diff < 86400:
-
+    if diff<86400:
         return f"{int(diff/3600)}小时前"
 
 
@@ -171,14 +184,10 @@ def format_time(timestamp):
 
 
 
-# ==========================
-# 用户登录
-# ==========================
 
 
-@app.route("/", methods=["GET","POST"])
-@app.route("/login", methods=["GET","POST"])
-
+@app.route("/",methods=["GET","POST"])
+@app.route("/login",methods=["GET","POST"])
 def login():
 
     add_visit(
@@ -186,33 +195,27 @@ def login():
     )
 
 
-    if request.method == "POST":
+    if request.method=="POST":
 
-
-        username = request.form.get(
+        username=request.form.get(
             "username"
         )
 
-
-        password = request.form.get(
+        password=request.form.get(
             "password"
         )
 
 
-        user = get_user(username)
-
+        user=get_user(username)
 
 
         if user and bcrypt.check_password_hash(
-
             user["password"],
-
             password
-
         ):
 
 
-            session["user"] = username
+            session["user"]=username
 
 
             update_status(
@@ -222,34 +225,9 @@ def login():
 
 
             add_login_log(
-
                 username,
-
                 request.remote_addr,
-
-                request.headers.get(
-                    "User-Agent"
-                )
-
-            )
-
-
-            add_device(
-
-                username,
-
-                request.headers.get(
-                    "User-Agent"
-                )[:80],
-
-                str(
-                    hash(
-                        request.headers.get(
-                            "User-Agent"
-                        )
-                    )
-                )
-
+                request.headers.get("User-Agent")
             )
 
 
@@ -258,39 +236,64 @@ def login():
             )
 
 
-
     return render_template(
         "login.html"
     )
 
 
 
-# ==========================
-# 首页
-# ==========================
 
 
 @app.route("/home")
-
 @login_required
-
 def home():
 
+    username=session["user"]
 
-    username = session["user"]
-
-
-    other = (
-
-        "真真"
-
-        if username == "泽泽"
-
-        else
-
-        "泽泽"
-
+    other=get_other_user(
+        username
     )
+
+
+    profile=get_profile(
+        username
+    )
+
+
+    other_profile=get_profile(
+        other
+    )
+
+
+    start=datetime(
+        2026,
+        6,
+        5
+    )
+
+
+    days=(
+        datetime.now()
+        -
+        start
+    ).days
+
+
+
+    conn=get_db()
+
+
+    memories=conn.execute(
+        """
+        SELECT *
+        FROM memories
+        ORDER BY id DESC
+        """
+    ).fetchall()
+
+
+    conn.close()
+
 
 
     return render_template(
@@ -299,178 +302,107 @@ def home():
 
         user=username,
 
-        other=other
+        other=other,
+
+        profile=profile,
+
+        other_profile=other_profile,
+
+        days=days,
+
+        start_date="2026年6月5日 星期五",
+
+        memories=memories
 
     )
-# ==========================
-# 查看另一半状态
-# ==========================
-
+# app.py 最终版（第 2/3）
 
 @app.route("/status")
-
 @login_required
-
 def status():
 
-
-    username = session["user"]
-
-
-    other = (
-
-        "真真"
-
-        if username == "泽泽"
-
-        else
-
-        "泽泽"
-
+    other=get_other_user(
+        session["user"]
     )
 
 
-    data = get_status(other)
+    data=get_status(
+        other
+    )
 
 
-    online = False
-
-    last = 0
+    online=False
+    last=0
 
 
     if data:
 
-        last = data["last_time"]
+        last=data["last_time"]
 
 
-        if time.time() - last <= 10:
+        if data["online"]==1 and time.time()-last<=30:
 
-            online = True
+            online=True
 
 
 
     return jsonify({
 
-        "online": online,
+        "online":online,
 
-        "last": format_time(last)
+        "last":format_time(last)
 
     })
 
 
 
 
-# ==========================
-# 心跳
-# ==========================
-
 
 @app.route("/heartbeat")
-
 @login_required
-
 def heartbeat():
 
-
-    username = session["user"]
-
-
     update_status(
-
-        username,
-
+        session["user"],
         1
-
     )
 
 
     return jsonify({
-
-        "success": True
-
+        "success":True
     })
 
 
 
 
 
-# ==========================
-# 管理员登录
-# ==========================
+
+@app.route("/chat")
+@login_required
+def chat():
+
+    username=session["user"]
 
 
-@app.route("/admin", methods=["GET","POST"])
-
-def admin_login():
-
-
-    # 已登录直接进入后台
-
-    if session.get("admin"):
-
-        return redirect(
-
-            url_for(
-                "admin_dashboard"
-            )
-
-        )
+    other=get_other_user(
+        username
+    )
 
 
-
-    if request.method == "POST":
-
-
-        username = request.form.get(
-            "username",
-            ""
-        )
-
-
-        password = request.form.get(
-            "password",
-            ""
-        )
-
-
-
-        if (
-
-            username == ADMIN_USERNAME
-
-            and
-
-            password == ADMIN_PASSWORD
-
-        ):
-
-
-            session["admin"] = True
-
-
-            return redirect(
-
-                url_for(
-                    "admin_dashboard"
-                )
-
-            )
-
-
-
-        return render_template(
-
-            "admin_login.html",
-
-            error="账号或密码错误"
-
-        )
-
+    other_profile=get_profile(
+        other
+    )
 
 
     return render_template(
 
-        "admin_login.html"
+        "chat.html",
+
+        user=username,
+
+        other=other,
+
+        other_profile=other_profile
 
     )
 
@@ -479,32 +411,426 @@ def admin_login():
 
 
 
-# ==========================
-# 管理后台
-# ==========================
+@app.route("/chat/send",methods=["POST"])
+@login_required
+def chat_send():
+
+    sender=session["user"]
+
+
+    data=request.json
+
+
+    content=data.get(
+        "content",
+        ""
+    )
+
+
+    if not content.strip():
+
+        return jsonify({
+            "success":False
+        })
+
+
+    receiver=get_other_user(
+        sender
+    )
+
+
+    add_message(
+        sender,
+        receiver,
+        content
+    )
+
+
+    return jsonify({
+        "success":True
+    })
+
+
+
+
+
+
+@app.route("/chat/messages")
+@login_required
+def chat_messages():
+
+    username=session["user"]
+
+
+    other=get_other_user(
+        username
+    )
+
+
+    messages=get_messages(
+        username,
+        other
+    )
+
+
+    result=[]
+
+
+    for msg in messages:
+
+        result.append({
+
+            "sender":msg["sender"],
+
+            "content":msg["content"],
+
+            "type":msg["type"],
+
+            "time":msg["created"]
+
+        })
+
+
+    return jsonify(result)
+
+
+
+
+
+
+@app.route("/chat/unread")
+@login_required
+def chat_unread():
+
+    return jsonify({
+
+        "count":
+        get_unread_count(
+            session["user"]
+        )
+
+    })
+
+
+
+
+
+
+
+@app.route("/chat/upload",methods=["POST"])
+@login_required
+def chat_upload():
+
+    file=request.files.get(
+        "image"
+    )
+
+
+    if not file:
+
+        return jsonify({
+            "success":False
+        })
+
+
+    sender=session["user"]
+
+
+    receiver=get_other_user(
+        sender
+    )
+
+
+    folder="static/uploads/chat"
+
+
+    os.makedirs(
+        folder,
+        exist_ok=True
+    )
+
+
+    filename=(
+
+        str(int(time.time()))
+
+        +
+
+        "_"
+
+        +
+
+        file.filename
+
+    )
+
+
+    file.save(
+        os.path.join(
+            folder,
+            filename
+        )
+    )
+
+
+    add_image_message(
+        sender,
+        receiver,
+        filename
+    )
+
+
+    return jsonify({
+
+        "success":True
+
+    })
+
+
+
+
+
+
+
+
+@app.route("/profile",methods=["GET","POST"])
+@login_required
+def profile():
+
+    username=session["user"]
+
+
+    if request.method=="POST":
+
+
+        nickname=request.form.get(
+            "nickname"
+        )
+
+
+        birthday_type=request.form.get(
+            "birthday_type",
+            "solar"
+        )
+
+
+        birthday=request.form.get(
+            "birthday",
+            ""
+        )
+
+
+        lunar_month=request.form.get(
+            "lunar_month",
+            ""
+        )
+
+
+        lunar_day=request.form.get(
+            "lunar_day",
+            ""
+        )
+
+
+        lunar_solar_date=request.form.get(
+            "lunar_solar_date",
+            ""
+        )
+
+
+        signature=request.form.get(
+            "signature",
+            ""
+        )
+
+
+
+        update_profile(
+
+            username,
+
+            nickname,
+
+            birthday_type,
+
+            birthday,
+
+            lunar_month,
+
+            lunar_day,
+
+            lunar_solar_date,
+
+            signature
+
+        )
+
+
+
+        avatar=request.files.get(
+            "avatar"
+        )
+
+
+        if avatar and avatar.filename:
+
+
+            folder="static/uploads/avatar"
+
+
+            os.makedirs(
+                folder,
+                exist_ok=True
+            )
+
+
+            filename=(
+
+                username
+
+                +
+
+                "_"
+
+                +
+
+                str(int(time.time()))
+
+                +
+
+                ".png"
+
+            )
+
+
+            avatar.save(
+                os.path.join(
+                    folder,
+                    filename
+                )
+            )
+
+
+            update_avatar(
+                username,
+                filename
+            )
+
+
+
+        return redirect(
+            url_for("profile")
+        )
+
+
+    return render_template(
+
+        "profile.html",
+
+        profile=get_profile(
+            username
+        )
+
+    )
+# app.py 最终版（第 3/3）
+
+@socketio.on("send_message")
+def socket_send(data):
+
+    sender=data.get(
+        "sender"
+    )
+
+    content=data.get(
+        "content"
+    )
+
+
+    receiver=get_other_user(
+        sender
+    )
+
+
+    add_message(
+        sender,
+        receiver,
+        content
+    )
+
+
+    emit(
+
+        "receive_message",
+
+        {
+
+            "sender":sender,
+
+            "content":content,
+
+            "time":datetime.now().strftime(
+                "%H:%M"
+            )
+
+        },
+
+        broadcast=True
+
+    )
+
+
+
+
+
+
+
+@app.route("/admin",methods=["GET","POST"])
+def admin_login():
+
+    if request.method=="POST":
+
+        username=request.form.get(
+            "username"
+        )
+
+        password=request.form.get(
+            "password"
+        )
+
+
+        if username==ADMIN_USERNAME and password==ADMIN_PASSWORD:
+
+            session["admin"]=True
+
+
+            return redirect(
+                url_for(
+                    "admin_dashboard"
+                )
+            )
+
+
+    return render_template(
+        "admin_login.html"
+    )
+
+
+
+
+
 
 
 @app.route("/admin/dashboard")
-
 @admin_required
-
 def admin_dashboard():
-
-
-    logs = get_login_logs()
-
-
-    devices = get_devices()
-
-
 
     return render_template(
 
         "admin.html",
 
-        logs=logs,
+        logs=get_login_logs(),
 
-        devices=devices
+        devices=get_devices()
 
     )
 
@@ -513,181 +839,45 @@ def admin_dashboard():
 
 
 
-
-# ==========================
-# 系统监控
-# ==========================
-
-
 @app.route("/admin/system")
-
 @admin_required
-
 def system_status():
 
-
-    cpu = psutil.cpu_percent()
-
-
-
-    data = {
-
-
-        "cpu": cpu,
-
-
-        "memory":
-
-            psutil.virtual_memory().percent,
-
-
-        "disk":
-
-            psutil.disk_usage("/").percent,
-
-
-        "system":
-
-            platform.system(),
-
-
-        "machine":
-
-            platform.machine()
-
-    }
-
+    cpu=psutil.cpu_percent()
 
 
     system_history.append({
 
-        "time":
+        "time":datetime.now().strftime(
+            "%H:%M:%S"
+        ),
 
-            datetime.now().strftime(
-                "%H:%M:%S"
-            ),
-
-
-        "cpu":
-
-            cpu
+        "cpu":cpu
 
     })
 
 
-
-    if len(system_history) > 60:
+    if len(system_history)>60:
 
         system_history.pop(0)
 
 
 
-    return jsonify(data)
-
-
-
-
-
-
-# ==========================
-# CPU历史曲线
-# ==========================
-
-
-@app.route("/admin/system/history")
-
-@admin_required
-
-def system_history_api():
-
-
-    return jsonify(
-
-        system_history
-
-    )
-
-
-
-
-
-# ==========================
-# Cloudflare Tunnel
-# ==========================
-
-
-@app.route("/admin/tunnel")
-
-@admin_required
-
-def tunnel_status():
-
-
-    try:
-
-
-        result = subprocess.check_output(
-
-            [
-
-                "cloudflared",
-
-                "tunnel",
-
-                "info"
-
-            ],
-
-            stderr=subprocess.STDOUT,
-
-            timeout=5
-
-        ).decode("utf-8")
-
-
-
-        return jsonify({
-
-            "online": True,
-
-            "info": result[:300]
-
-        })
-
-
-
-    except Exception:
-
-
-        return jsonify({
-
-            "online": False,
-
-            "info": "Tunnel Offline"
-
-        })
-    # ==========================
-# 网站访问统计
-# ==========================
-
-
-@app.route("/admin/stats")
-
-@admin_required
-
-def admin_stats():
-
-
     return jsonify({
 
-        "today":
+        "cpu":cpu,
 
-            get_today_visit_count(),
+        "memory":
+        psutil.virtual_memory().percent,
 
+        "disk":
+        psutil.disk_usage("/").percent,
 
-        "total":
+        "system":
+        platform.system(),
 
-            get_visit_count()
+        "machine":
+        platform.machine()
 
     })
 
@@ -696,31 +886,13 @@ def admin_stats():
 
 
 
-# ==========================
-# 管理员退出
-# ==========================
 
+@app.route("/admin/system/history")
+@admin_required
+def system_history_api():
 
-@app.route("/admin/logout")
-
-def admin_logout():
-
-
-    session.pop(
-
-        "admin",
-
-        None
-
-    )
-
-
-    return redirect(
-
-        url_for(
-            "admin_login"
-        )
-
+    return jsonify(
+        system_history
     )
 
 
@@ -728,39 +900,59 @@ def admin_logout():
 
 
 
-# ==========================
-# 用户退出
-# ==========================
+
+@app.route("/admin/stats")
+@admin_required
+def admin_stats():
+
+    return jsonify({
+
+        "visits":
+        get_visit_count(),
+
+        "today":
+        get_today_visit_count()
+
+    })
+
+
+
+
+
+
+
+@app.route("/admin/tunnel")
+@admin_required
+def admin_tunnel():
+
+    return jsonify({
+
+        "status":"running"
+
+    })
+
+
+
+
+
 
 
 @app.route("/logout")
-
 def logout():
-
 
     if "user" in session:
 
-
         update_status(
-
             session["user"],
-
             0
-
         )
-
 
 
     session.clear()
 
 
-
     return redirect(
-
-        url_for(
-            "login"
-        )
-
+        url_for("login")
     )
 
 
@@ -768,15 +960,14 @@ def logout():
 
 
 
-# ==========================
-# 启动
-# ==========================
 
 
-if __name__ == "__main__":
+if __name__=="__main__":
 
 
-    app.run(
+    socketio.run(
+
+        app,
 
         host="0.0.0.0",
 

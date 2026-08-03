@@ -1,0 +1,186 @@
+cd ~/love-website
+
+cat > templates/profile.html <<'EOF'
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>个人资料</title>
+
+<link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+
+<body class="home-page">
+
+
+<div class="background">
+
+<div class="light light-one"></div>
+<div class="light light-two"></div>
+<div class="light light-three"></div>
+
+</div>
+
+
+
+<div class="home-container">
+
+
+<div class="widget">
+
+<div class="glass-shine"></div>
+
+
+<h2 style="text-align:center;">
+个人资料
+</h2>
+
+
+
+<div style="text-align:center;margin:25px;">
+
+
+<img
+
+id="avatarPreview"
+
+src="/static/uploads/avatar/{{ profile.avatar or 'default.png' }}"
+
+style="
+width:110px;
+height:110px;
+border-radius:50%;
+object-fit:cover;
+box-shadow:0 10px 30px rgba(0,0,0,.15);
+border:3px solid rgba(255,255,255,.8);
+"
+
+>
+
+
+</div>
+
+
+
+
+<form method="POST" enctype="multipart/form-data">
+
+
+
+<div class="widget-input">
+
+
+<input
+
+name="nickname"
+
+placeholder="昵称"
+
+value="{{ profile.nickname }}"
+
+>
+
+
+<input
+
+name="birthday"
+
+placeholder="生日"
+
+value="{{ profile.birthday }}"
+
+>
+
+
+<input
+
+name="anniversary"
+
+placeholder="纪念日"
+
+value="{{ profile.anniversary }}"
+
+>
+
+
+<input
+
+name="signature"
+
+placeholder="个性签名"
+
+value="{{ profile.signature }}"
+
+>
+
+
+
+<input
+
+type="file"
+
+name="avatar"
+
+accept="image/*"
+
+onchange="previewAvatar(event)"
+
+>
+
+
+</div>
+
+
+
+
+<button class="glass-button">
+
+保存资料
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+function previewAvatar(event){
+
+    const img=document.getElementById(
+        "avatarPreview"
+    );
+
+    const file=event.target.files[0];
+
+    if(file){
+
+        img.src=URL.createObjectURL(file);
+
+    }
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
+EOF
