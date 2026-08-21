@@ -1,0 +1,317 @@
+.home-container{
+
+    width:90%;
+    max-width:600px;
+
+    margin:auto;
+
+    padding-top:60px;
+    padding-bottom:120px;
+
+}
+
+
+
+.welcome{
+
+    text-align:center;
+
+    margin-bottom:35px;
+
+}
+
+
+
+.welcome h1{
+
+    font-size:42px;
+
+    color:#334155;
+
+}
+
+
+
+.welcome p{
+
+    font-size:22px;
+
+    color:#64748b;
+
+    margin-top:10px;
+
+}
+
+
+
+.profile-header{
+
+    position:relative;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+
+
+.profile-header h2{
+
+    font-size:26px;
+
+    color:#334155;
+
+}
+
+
+
+.mini-edit{
+
+    position:absolute;
+
+    right:0;
+
+    top:0;
+
+    padding:6px 14px;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    color:#64748b;
+
+    text-decoration:none;
+
+    background:
+    rgba(
+        255,
+        255,
+        255,
+        .45
+    );
+
+    backdrop-filter:
+    blur(10px);
+
+}
+
+
+
+.couple-profile{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:50px;
+
+    margin-top:25px;
+
+}
+
+
+
+.person-card{
+
+    flex:1;
+
+    text-align:center;
+
+}
+
+
+
+.profile-avatar{
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    background:white;
+
+    border:
+
+    3px solid
+
+    rgba(
+        255,
+        255,
+        255,
+        .8
+    );
+
+    box-shadow:
+
+    0 10px 30px
+
+    rgba(
+        148,
+        163,
+        184,
+        .25
+    );
+
+}
+
+
+
+.person-card h3{
+
+    margin-top:15px;
+
+    font-size:20px;
+
+    color:#334155;
+
+}
+
+
+
+.birthday-box{
+
+    margin-top:15px;
+
+    color:#64748b;
+
+    font-size:14px;
+
+    line-height:1.8;
+
+}
+
+
+
+.status-widget h2{
+
+    font-size:26px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.status{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+
+#status-dot{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    box-shadow:
+
+    0 0 15px #22c55e;
+
+}
+
+
+
+.last-online{
+
+    margin-top:20px;
+
+    color:#64748b;
+
+}
+
+
+
+.love-days{
+
+    text-align:center;
+
+}
+
+
+
+.days-number{
+
+    font-size:52px;
+
+    font-weight:700;
+
+    margin:20px 0;
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #ec4899,
+        #8b5cf6
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+
+}
+
+
+
+.days-unit{
+
+    font-size:18px;
+
+    color:#64748b;
+
+}
+
+
+
+.logout-button{
+
+    display:block;
+
+    width:120px;
+
+    margin:35px auto 20px;
+
+    padding:12px 0;
+
+    text-align:center;
+
+    border-radius:30px;
+
+    text-decoration:none;
+
+    color:#64748b;
+
+    background:
+
+    rgba(
+        255,
+        255,
+        255,
+        .45
+    );
+
+    backdrop-filter:
+
+    blur(15px);
+
+}

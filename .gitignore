@@ -1,5 +1,28 @@
-venv/
+# Python
 __pycache__/
 *.pyc
+venv/
+
+# Database
+*.db
+data/
+
+# Uploads
+static/uploads/
+
+# AI models
+models/
+
+# Logs
 *.log
+error.txt
+log.txt
+
+# Private
+voice_memory.json
+
+# Environment
+.env
+
+# OS
 .DS_Store

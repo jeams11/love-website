@@ -9,7 +9,7 @@
 
 <title>我们的空间</title>
 
-<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/main.css') }}">
 
 </head>
 
@@ -47,7 +47,7 @@
 </h1>
 
 <p>
-{{ user }} ❤️ {{ other }}
+{{ user }} 𝙇𝙤𝙫𝙚 {{ other }}
 </p>
 
 </div>
@@ -68,8 +68,7 @@
 </h2>
 
 
-<a href="{{ url_for('profile') }}"
-class="mini-edit">
+<a href="{{ url_for('profile.profile') }}" class="mini-edit">
 
 修改资料
 
@@ -90,13 +89,9 @@ class="mini-edit">
 
 
 <img
-
 class="profile-avatar"
-
 src="{{ url_for('static',filename='uploads/avatar/'+profile.avatar) }}"
-
 onerror="this.src='/static/uploads/avatar/default.png'"
-
 >
 
 
@@ -136,7 +131,6 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 {% if profile.lunar_solar_date %}
 
 <p>
-
 对应公历：
 
 {{ profile.lunar_solar_date }}
@@ -161,21 +155,15 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 
 
 <img
-
 class="profile-avatar"
-
 src="{{ url_for('static',filename='uploads/avatar/'+other_profile.avatar) }}"
-
 onerror="this.src='/static/uploads/avatar/default.png'"
-
 >
 
 
 
 <h3>
-
 {{ other_profile.nickname }}
-
 </h3>
 
 
@@ -185,7 +173,6 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 
 
 <p>
-
 公历：
 
 {{ other_profile.birthday if other_profile.birthday else "未填写" }}
@@ -195,7 +182,6 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 
 
 <p>
-
 农历：
 
 {% if other_profile.lunar_month %}
@@ -215,7 +201,6 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 {% if other_profile.lunar_solar_date %}
 
 <p>
-
 对应公历：
 
 {{ other_profile.lunar_solar_date }}
@@ -328,62 +313,45 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 
 
 </div>
-
-
-
-
-
-
-
-
-
 <!-- 回忆 -->
 
 <div class="widget memory-widget">
 
 
 <h2>
-
 我们的回忆
-
 </h2>
 
 
 
-<div class="memory-scroll">
+<div class="timeline">
 
 
 {% for memory in memories %}
 
 
-<div class="memory-item">
+<div class="timeline-item">
 
 
-<div class="memory-dot"></div>
+<div class="timeline-dot"></div>
 
 
 
-<div class="memory-content">
+<div class="timeline-content">
 
 
 <h3>
-
 {{ memory.title }}
-
 </h3>
 
 
 <p>
-
 {{ memory.content }}
-
 </p>
 
 
 <span>
-
 {{ memory.date }}
-
 </span>
 
 
@@ -411,8 +379,7 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 <!-- 退出登录 -->
 
 
-<a href="{{ url_for('logout') }}"
-
+<a href="{{ url_for('auth.logout') }}"
 class="logout-button">
 
 退出登录
@@ -433,15 +400,12 @@ class="logout-button">
 <div class="app-tabbar">
 
 
-<a href="{{ url_for('home') }}"
-
+<a href="{{ url_for('home.home') }}"
 class="tab-item tab-active">
 
 
 <span>
-
 ⌂
-
 </span>
 
 首页
@@ -453,15 +417,12 @@ class="tab-item tab-active">
 
 
 
-<a href="{{ url_for('chat') }}"
-
+<a href="{{ url_for('chat.chat') }}"
 class="tab-item">
 
 
 <span>
-
 ♡
-
 </span>
 
 聊天
@@ -473,15 +434,12 @@ class="tab-item">
 
 
 
-<a href="{{ url_for('profile') }}"
-
+<a href="{{ url_for('profile.profile') }}"
 class="tab-item">
 
 
 <span>
-
 ○
-
 </span>
 
 资料
@@ -525,7 +483,7 @@ const dot=document.getElementById("status-dot");
 if(data.online){
 
 
-text.innerHTML="🟢 在线";
+text.innerHTML="在线";
 
 dot.style.background="#22c55e";
 
@@ -533,7 +491,7 @@ dot.style.background="#22c55e";
 }else{
 
 
-text.innerHTML="⚪ 离线";
+text.innerHTML="离线";
 
 dot.style.background="#94a3b8";
 

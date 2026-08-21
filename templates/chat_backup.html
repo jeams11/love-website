@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>我们的聊天</title>
+
+<link rel="stylesheet" href="/static/css/main.css">
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<style>
+
+.chat-header .avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    overflow:hidden;
+    flex-shrink:0;
+}
+
+.chat-header .avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+
+.chat-input{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+
+.plus-box{
+    position:relative;
+}
+
+
+.plus-menu{
+
+    display:none;
+
+    position:absolute;
+
+    bottom:55px;
+
+    left:0;
+
+    width:140px;
+
+    padding:10px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,.75);
+
+    backdrop-filter:blur(20px);
+
+}
+
+
+.plus-menu button{
+
+    width:100%;
+
+    margin:5px 0;
+
+}
+
+
+.plus-menu.show{
+
+    display:block;
+
+}
+
+
+.chat-image{
+
+    max-width:220px;
+
+    border-radius:16px;
+
+}
+
+
+.file-message,
+.voice-message{
+
+    display:inline-block;
+
+    padding:10px 14px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.25);
+
+}
+
+
+.quote-box{
+
+    padding:6px 10px;
+
+    border-left:3px solid rgba(255,255,255,.6);
+
+    font-size:12px;
+
+    opacity:.7;
+
+    margin-bottom:5px;
+
+}
+
+
+.withdraw-message{
+
+    opacity:.5;
+
+    font-size:13px;
+
+}
+
+
+#chat-status-dot{
+
+    display:inline-block;
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    margin-right:5px;
+
+    box-shadow:0 0 10px #22c55e;
+
+}
+
+
+.bubble{
+
+    width:fit-content;
+
+    max-width:75%;
+
+    padding:10px 14px;
+
+    border-radius:20px;
+
+    word-break:break-word;
+
+    position:relative;
+
+}
+
+
+.bubble p{
+
+    display:block;
+
+    line-height:1.5;
+
+    margin:0;
+
+}
+
+
+.bubble span{
+
+    display:block;
+
+    margin-top:5px;
+
+    font-size:11px;
+
+    opacity:.45;
+
+}
+
+
+</style>
+
+</head>
+
+
+<body class="chat-page">
+
+
+<div class="chat-background">
+
+<div class="chat-light pink"></div>
+
+<div class="chat-light blue"></div>
+
+<div class="chat-light purple"></div>
+
+</div>
+
+
+
+<main class="chat-container">
+
+
+<header class="chat-header">
+
+
+<a href="/home" class="back">
+
+←
+
+</a>
+
+
+
+<div class="avatar">
+
+<img
+
+src="/static/uploads/avatar/{{ other_profile.avatar }}"
+
+onerror="this.src='/static/uploads/avatar/default.png'"
+
+>
+
+</div>
+
+
+
+<div class="chat-user">
+
+<h2>
+
+{{ other }}
+
+</h2>
+
+
+<p>
+
+<span id="chat-status-dot"></span>
+
+在线
+
+<span id="unread"></span>
+
+</p>
+
+
+</div>
+
+
+</header>
+
+
+
+
+<section class="messages" id="messages">
+
+</section>
+
+
+
+
+
+<footer class="chat-input">
+
+
+
+<div class="plus-box">
+
+
+<button
+
+class="plus-btn"
+
+onclick="toggleMenu()"
+
+>
+
++
+
+</button>
+
+
+
+<div id="plus-menu" class="plus-menu">
+
+
+<button onclick="chooseImage()">
+
+🖼 图片
+
+</button>
+
+
+
+<button onclick="chooseFile()">
+
+📄 文件
+
+</button>
+
+
+
+<button onclick="camera()">
+
+📷 拍照
+
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+<input
+
+type="file"
+
+id="image"
+
+accept="image/*"
+
+hidden
+
+>
+
+
+
+<input
+
+type="file"
+
+id="camera"
+
+accept="image/*"
+
+capture="environment"
+
+hidden
+
+>
+
+
+
+<input
+
+type="file"
+
+id="file"
+
+hidden
+
+>
+
+
+
+<input
+
+id="message"
+
+placeholder="输入消息..."
+
+autocomplete="off"
+
+>
+
+
+
+<button
+
+class="voice-btn"
+
+onclick="startVoice()"
+
+>
+
+🎤
+
+</button>
+
+
+
+<button
+
+class="emoji-btn"
+
+onclick="emojiOpen()"
+
+>
+
+😊
+
+</button>
+
+
+</footer>
+
+
+
+</main>
+
+
+<script>
+
+
+const currentUser="{{ user }}";
+
+const socket=io();
+
+
+
+function formatChatTime(time){
+
+    if(!time){
+
+        return "";
+
+    }
+
+
+    if(time.length>=16){
+
+        return time.substring(11,16);
+
+    }
+
+
+    return time;
+
+}
+function addBubble(msg){
+
+
+const box=document.getElementById("messages");
+
+
+const div=document.createElement("div");
+
+
+div.className =
+
+msg.sender===currentUser
+
+?
+
+"bubble mine"
+
+:
+
+"bubble other";
+
+
+
+div.oncontextmenu=function(e){
+
+    e.preventDefault();
+
+
+    if(
+
+        msg.sender===currentUser
+
+        &&
+
+        msg.withdrawn!=1
+
+    ){
+
+        withdrawMessage(msg.id);
+
+    }
+
+};
+
+
+
+let html="";
+
+
+
+if(msg.withdrawn==1){
+
+
+html=`
+
+<div class="withdraw-message">
+
+该消息已撤回
+
+</div>
+
+`;
+
+
+
+}else{
+
+
+if(msg.quote_text){
+
+
+html+=`
+
+<div class="quote-box">
+
+引用：${msg.quote_text}
+
+</div>
+
+`;
+
+
+
+}
+
+
+
+if(msg.type==="image"){
+
+
+html+=`
+
+<img
+
+src="/static/uploads/chat/${msg.content}"
+
+class="chat-image"
+
+onclick="window.open(this.src)"
+
+>
+
+`;
+
+
+
+}
+
+else if(msg.type==="file"){
+
+
+html+=`
+
+<a
+
+class="file-message"
+
+href="/static/uploads/file/${msg.content}"
+
+target="_blank"
+
+>
+
+📄 ${msg.content}
+
+</a>
+
+`;
+
+
+
+}
+
+else if(msg.type==="voice"){
+
+
+html+=`
+
+<audio
+
+class="voice-message"
+
+controls
+
+src="/static/uploads/voice/${msg.content}"
+
+>
+
+</audio>
+
+`;
+
+
+
+}
+
+else{
+
+
+html+=`
+
+<p>
+
+${msg.content}
+
+</p>
+
+`;
+
+
+
+}
+
+
+}
+
+
+
+html+=`
+
+<span>
+
+${formatChatTime(msg.time)}
+
+</span>
+
+`;
+
+
+
+div.innerHTML=html;
+
+
+box.appendChild(div);
+
+
+box.scrollTop=box.scrollHeight;
+
+
+}
+
+
+
+
+
+
+socket.on(
+
+"receive_message",
+
+function(msg){
+
+    addBubble(msg);
+
+}
+
+);
+
+
+
+
+
+
+
+function loadMessages(){
+
+
+fetch("/chat/messages")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+const box=document.getElementById("messages");
+
+
+box.innerHTML="";
+
+
+
+data.forEach(msg=>{
+
+
+addBubble(msg);
+
+
+});
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+function sendMessage(){
+
+
+const input=document.getElementById("message");
+
+
+const text=input.value.trim();
+
+
+
+if(!text){
+
+    return;
+
+}
+
+
+
+socket.emit(
+
+"send_message",
+
+{
+
+sender:currentUser,
+
+content:text,
+
+type:"text"
+
+}
+
+);
+
+
+
+input.value="";
+
+
+}
+
+
+
+
+
+
+
+function toggleMenu(){
+
+
+document
+
+.getElementById("plus-menu")
+
+.classList.toggle("show");
+
+
+}
+
+
+
+
+
+
+
+function chooseImage(){
+
+
+document
+
+.getElementById("image")
+
+.click();
+
+
+}
+
+
+
+
+
+
+
+document
+
+.getElementById("image")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+const file=this.files[0];
+
+
+if(!file){
+
+    return;
+
+}
+
+
+
+const form=new FormData();
+
+
+form.append(
+
+"image",
+
+file
+
+);
+
+
+
+fetch(
+
+"/chat/upload",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+this.value="";
+
+
+}
+
+);
+
+
+
+
+
+
+
+function chooseFile(){
+
+
+document
+
+.getElementById("file")
+
+.click();
+
+
+}
+
+
+
+
+
+
+
+document
+
+.getElementById("file")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+const file=this.files[0];
+
+
+if(!file){
+
+    return;
+
+}
+
+
+
+const form=new FormData();
+
+
+form.append(
+
+"file",
+
+file
+
+);
+
+
+
+fetch(
+
+"/chat/file/upload",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+this.value="";
+
+
+}
+
+);
+function camera(){
+
+
+document
+
+.getElementById("camera")
+
+.click();
+
+
+}
+
+
+
+
+document
+
+.getElementById("camera")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+const file=this.files[0];
+
+
+if(!file){
+
+    return;
+
+}
+
+
+
+const form=new FormData();
+
+
+form.append(
+
+"image",
+
+file
+
+);
+
+
+
+fetch(
+
+"/chat/upload",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+this.value="";
+
+
+}
+
+);
+
+
+
+
+
+
+
+function emojiOpen(){
+
+
+alert(
+
+"表情功能开发中"
+
+);
+
+
+}
+
+
+
+
+
+
+
+function withdrawMessage(id){
+
+
+if(!confirm("撤回这条消息？")){
+
+
+return;
+
+
+}
+
+
+
+fetch(
+
+"/chat/withdraw/"+id,
+
+{
+
+method:"POST"
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+function startVoice(){
+
+
+if(!navigator.mediaDevices){
+
+
+alert(
+
+"当前设备不支持录音"
+
+);
+
+
+return;
+
+
+}
+
+
+
+navigator.mediaDevices.getUserMedia({
+
+audio:true
+
+})
+
+.then(stream=>{
+
+
+const recorder=new MediaRecorder(stream);
+
+
+let chunks=[];
+
+
+
+recorder.ondataavailable=function(e){
+
+
+chunks.push(e.data);
+
+
+};
+
+
+
+recorder.onstop=function(){
+
+
+const blob=new Blob(
+
+chunks,
+
+{
+
+type:"audio/webm"
+
+}
+
+);
+
+
+
+const form=new FormData();
+
+
+form.append(
+
+"voice",
+
+blob,
+
+"voice.webm"
+
+);
+
+
+
+fetch(
+
+"/chat/voice",
+
+{
+
+method:"POST",
+
+body:form
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+};
+
+
+
+
+recorder.start();
+
+
+
+setTimeout(()=>{
+
+
+recorder.stop();
+
+
+stream.getTracks().forEach(
+
+track=>track.stop()
+
+);
+
+
+},5000);
+
+
+
+alert(
+
+"开始录音，最长5秒"
+
+);
+
+
+
+})
+
+.catch(()=>{
+
+
+alert(
+
+"无法使用麦克风"
+
+);
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+function quoteMessage(id,text){
+
+
+fetch(
+
+"/chat/quote",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+quote_id:id,
+
+quote_text:text,
+
+content:""
+
+})
+
+}
+
+)
+
+.then(()=>{
+
+
+loadMessages();
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+document
+
+.getElementById("message")
+
+.addEventListener(
+
+"keydown",
+
+function(e){
+
+
+if(e.key==="Enter"){
+
+
+sendMessage();
+
+
+}
+
+
+}
+
+);
+
+
+
+
+
+
+
+function loadUnread(){
+
+
+fetch("/chat/unread")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+
+const el=document.getElementById("unread");
+
+
+
+if(data.count>0){
+
+
+el.innerHTML=
+
+" · "+data.count+"条新消息";
+
+
+}
+
+else{
+
+
+el.innerHTML="";
+
+
+}
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+loadMessages();
+
+
+loadUnread();
+
+
+
+setInterval(
+
+loadUnread,
+
+3000
+
+);
+
+</script>
+
+
+</body>
+
+
+</html>

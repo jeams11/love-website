@@ -1,0 +1,47 @@
+#camera-box{
+
+    position:fixed;
+
+    top:50%;
+
+    left:50%;
+
+    transform:
+    translate(-50%,-50%);
+
+    padding:20px;
+
+    border-radius:25px;
+
+    background:
+
+    rgba(
+        255,
+        255,
+        255,
+        .75
+    );
+
+    backdrop-filter:
+
+    blur(20px);
+
+    z-index:999;
+
+    text-align:center;
+
+}
+
+
+
+#camera-box button{
+
+    margin:10px;
+
+    padding:10px 20px;
+
+    border:none;
+
+    border-radius:20px;
+
+}

@@ -1,0 +1,145 @@
+/* ==========================
+   iOS 玻璃渐变底部导航
+========================== */
+
+.app-tabbar{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:24px;
+
+    transform:translateX(-50%);
+
+    width:92%;
+
+    max-width:680px;
+
+    display:flex;
+
+    justify-content:space-around;
+
+    align-items:center;
+
+    padding:18px 25px;
+
+
+    background:
+    linear-gradient(
+        135deg,
+        rgba(255,205,225,.78),
+        rgba(220,215,255,.78),
+        rgba(200,230,255,.78)
+    );
+
+
+    backdrop-filter:blur(30px);
+
+    -webkit-backdrop-filter:blur(30px);
+
+
+    border-radius:35px;
+
+
+    border:
+    1px solid
+    rgba(
+        255,
+        255,
+        255,
+        .9
+    );
+
+
+    box-shadow:
+
+    0 25px 60px
+
+    rgba(
+        148,
+        163,
+        184,
+        .28
+    );
+
+
+    z-index:100;
+
+}
+
+
+
+/* 导航项目 */
+
+.tab-item,
+.tab-item:link,
+.tab-item:visited,
+.tab-item:hover{
+
+    text-decoration:none;
+
+}
+
+
+
+.tab-item{
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+
+    gap:7px;
+
+
+    color:#64748b;
+
+
+    font-size:13px;
+
+
+    transition:.3s;
+
+}
+
+
+
+.tab-item span{
+
+    font-size:28px;
+
+    line-height:1;
+
+}
+
+
+
+.tab-active{
+
+    color:#ec4899;
+
+}
+
+
+
+.tab-item:hover{
+
+    transform:
+    translateY(-4px);
+
+}
+
+
+
+.chat-page .app-tabbar{
+
+    display:none;
+
+}

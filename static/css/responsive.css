@@ -1,0 +1,71 @@
+@media(max-width:600px){
+
+
+    .home-container,
+    .login-container{
+
+        width:95%;
+
+    }
+
+
+
+    .welcome h1{
+
+        font-size:34px;
+
+    }
+
+
+
+    .couple-profile{
+
+        gap:20px;
+
+    }
+
+
+
+    .profile-avatar{
+
+        width:75px;
+
+        height:75px;
+
+    }
+
+
+
+    .person-card h3{
+
+        font-size:17px;
+
+    }
+
+
+
+    .birthday-box{
+
+        font-size:13px;
+
+    }
+
+
+
+    .bubble{
+
+        max-width:85%;
+
+    }
+
+
+
+    .chat-input{
+
+        padding-left:10px;
+
+        padding-right:10px;
+
+    }
+
+}

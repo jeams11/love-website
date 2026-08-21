@@ -1,0 +1,25 @@
+@import url("base.css");
+@import url("background.css");
+@import url("components.css");
+@import url("login.css");
+@import url("home.css");
+@import url("memory.css");
+@import url("chat.css");
+@import url("camera.css");
+@import url("admin.css");
+@import url("animation.css");
+@import url("navigation.css");
+@import url("responsive.css");
+
+
+
+
+.love-title {
+    color: #ffc1d9;
+    font-size: 18px;
+    line-height: 1.8;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 12px rgba(247,168,196,0.35);
+}

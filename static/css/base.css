@@ -1,0 +1,150 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:
+    "SF Pro Display",
+    "PingFang SC",
+    "Microsoft YaHei",
+    sans-serif;
+}
+
+body{
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+
+.login-page,
+.home-page{
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #ffffff 0%,
+        #fce7f3 30%,
+        #dbeafe 60%,
+        #ede9fe 100%
+    );
+
+    color:#334155;
+
+}
+
+
+
+/* ==========================
+   首页 / 登录容器
+========================== */
+
+
+.login-container,
+.home-container{
+
+    width:90%;
+
+    max-width:600px;
+
+    margin:auto;
+
+}
+
+
+
+.home-container{
+
+    padding-top:60px;
+
+    padding-bottom:120px;
+
+}
+
+
+
+.login-container{
+
+    min-height:100vh;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+
+/* ==========================
+   通用玻璃卡片
+========================== */
+
+
+.widget{
+
+    position:relative;
+
+
+    background:
+
+    rgba(
+        255,
+        255,
+        255,
+        .62
+    );
+
+
+    border:
+
+    1px solid
+
+    rgba(
+        255,
+        255,
+        255,
+        .8
+    );
+
+
+    backdrop-filter:
+
+    blur(25px);
+
+
+    -webkit-backdrop-filter:
+
+    blur(25px);
+
+
+
+    border-radius:30px;
+
+
+
+    padding:35px;
+
+
+
+    margin-bottom:30px;
+
+
+
+    box-shadow:
+
+
+    0 20px 60px
+
+
+    rgba(
+        148,
+        163,
+        184,
+        .18
+    );
+
+
+    overflow:hidden;
+
+}

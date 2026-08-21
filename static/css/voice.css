@@ -1,0 +1,281 @@
+/* ==========================
+   语音按钮
+========================== */
+
+.voice-btn{
+
+    position:relative;
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+
+    background:
+
+    linear-gradient(
+        135deg,
+        #ff9ecb,
+        #d7b8ff
+    );
+
+
+    box-shadow:
+
+    0 0 20px
+
+    rgba(
+        255,
+        140,
+        200,
+        .45
+    );
+
+
+    transition:.25s;
+
+}
+
+
+.voice-btn:active{
+
+    transform:
+
+    scale(.82);
+
+}
+
+
+/* 麦克风图标 */
+
+.mic-icon{
+
+    position:relative;
+
+    width:14px;
+
+    height:20px;
+
+}
+
+
+.mic-icon::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:3px;
+
+    top:0;
+
+    width:8px;
+
+    height:14px;
+
+    border-radius:8px;
+
+    background:white;
+
+}
+
+
+.mic-icon::after{
+
+    content:"";
+
+    position:absolute;
+
+    left:0;
+
+    bottom:0;
+
+    width:14px;
+
+    height:8px;
+
+
+    border:
+
+    2px solid white;
+
+
+    border-top:none;
+
+
+    border-radius:
+
+    0 0 10px 10px;
+
+}
+
+
+/* ==========================
+   录音浮窗
+========================== */
+
+
+.voice-record-card{
+
+    position:fixed;
+
+    left:50%;
+
+    top:50%;
+
+
+    transform:
+
+    translate(-50%,-50%);
+
+
+    width:180px;
+
+
+    padding:25px;
+
+
+    border-radius:30px;
+
+
+    background:
+
+    rgba(
+        255,
+        255,
+        255,
+        .75
+    );
+
+
+    backdrop-filter:
+
+    blur(25px);
+
+
+    -webkit-backdrop-filter:
+
+    blur(25px);
+
+
+    box-shadow:
+
+    0 20px 60px
+
+    rgba(
+        0,
+        0,
+        0,
+        .15
+    );
+
+
+    text-align:center;
+
+    z-index:999;
+
+}
+
+
+
+.voice-time{
+
+    margin-top:15px;
+
+    color:#555;
+
+    font-size:18px;
+
+}
+
+
+
+/* 声波动画 */
+
+.voice-wave{
+
+    position:relative;
+
+    width:70px;
+
+    height:70px;
+
+    margin:auto;
+
+}
+
+
+.voice-wave span{
+
+    position:absolute;
+
+    inset:0;
+
+    border-radius:50%;
+
+
+    border:
+
+    3px solid
+
+    rgba(
+        255,
+        120,
+        190,
+        .8
+    );
+
+
+    animation:
+
+    voiceWave 1.4s infinite;
+
+}
+
+
+.voice-wave span:nth-child(2){
+
+    animation-delay:.3s;
+
+}
+
+
+.voice-wave span:nth-child(3){
+
+    animation-delay:.6s;
+
+}
+
+
+@keyframes voiceWave{
+
+    from{
+
+        transform:
+
+        scale(.6);
+
+        opacity:1;
+
+    }
+
+
+    to{
+
+        transform:
+
+        scale(1.6);
+
+        opacity:0;
+
+    }
+
+}

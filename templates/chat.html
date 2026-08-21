@@ -9,71 +9,9 @@
 
 <title>我们的聊天</title>
 
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="/static/css/main.css">
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-
-<style>
-
-.chat-header .avatar{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    overflow:hidden;
-    flex-shrink:0;
-}
-
-.chat-header .avatar img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-
-.chat-input{
-    position:relative;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-
-
-.plus-box{
-    position:relative;
-}
-
-
-.plus-menu{
-    display:none;
-    position:absolute;
-    bottom:55px;
-    left:0;
-    width:130px;
-    padding:10px;
-    border-radius:18px;
-    background:rgba(255,255,255,0.75);
-    backdrop-filter:blur(20px);
-}
-
-
-.plus-menu button{
-    width:100%;
-    margin:5px 0;
-}
-
-
-.plus-menu.show{
-    display:block;
-}
-
-
-.chat-image{
-    max-width:220px;
-    border-radius:16px;
-}
-
-
-</style>
 
 </head>
 
@@ -83,26 +21,24 @@
 
 <div class="chat-background">
 
-<div class="chat-light pink"></div>
-<div class="chat-light blue"></div>
-<div class="chat-light purple"></div>
+    <div class="chat-light pink"></div>
+
+    <div class="chat-light blue"></div>
+
+    <div class="chat-light purple"></div>
 
 </div>
-
 
 
 
 <main class="chat-container">
 
 
-
 <header class="chat-header">
 
 
 <a href="/home" class="back">
-
 ←
-
 </a>
 
 
@@ -110,30 +46,26 @@
 <div class="avatar">
 
 <img
-
 src="/static/uploads/avatar/{{ other_profile.avatar }}"
-
 onerror="this.src='/static/uploads/avatar/default.png'"
-
 >
 
-</div>
-
-
-
-
-<div class="chat-user">
-
-<h2>
-
 {{ other }}
+
+<div id="messages" class="messages"></div>
 
 </h2>
 
 
+
 <p>
 
-🟢 在线
+<span id="chat-status-dot"></span>
+
+<span id="chat-status-text">
+检测中...
+</span>
+
 
 <span id="unread"></span>
 
@@ -161,7 +93,6 @@ onerror="this.src='/static/uploads/avatar/default.png'"
 <footer class="chat-input">
 
 
-
 <div class="plus-box">
 
 
@@ -184,21 +115,21 @@ onclick="toggleMenu()"
 
 <button onclick="chooseImage()">
 
-🖼 图片
+图片
 
 </button>
 
 
 <button onclick="chooseFile()">
 
-📄 文件
+文件
 
 </button>
 
 
 <button onclick="camera()">
 
-📷 拍照
+拍照
 
 </button>
 
@@ -226,6 +157,33 @@ hidden
 
 
 
+<input
+
+type="file"
+
+id="camera"
+
+accept="image/*"
+
+capture="environment"
+
+hidden
+
+>
+
+
+
+<input
+
+type="file"
+
+id="file"
+
+hidden
+
+>
+
+
 
 
 <input
@@ -239,16 +197,21 @@ autocomplete="off"
 >
 
 
-<button class="voice-btn">
-
-🎤
-
+<button
+class="voice-btn"
+id="voice-btn"
+>
+</button>
+<span class="mic-icon"></span>
 </button>
 
 
-<button class="emoji-btn" onclick="emojiOpen()">
-
+<button
+class="emoji-btn"
+onclick="emojiOpen()"
+>
 😊
+</button>
 
 </button>
 
@@ -256,19 +219,258 @@ autocomplete="off"
 </footer>
 
 
+<div id="record-panel">
+
+<div class="record-title">
+正在录音
+</div>
+
+<div class="record-wave">
+
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+<span></span>
+
+</div>
+
+<div id="record-time">
+
+0:00
+
+</div>
+
+</div>
+
+
+<div id="camera-box" style="display:none;">
+
+
+<video
+id="camera-video"
+autoplay
+playsinline
+muted>
+</video>
+
+
+
+<button onclick="takePhoto()">
+
+拍照
+
+</button>
+
+
+
+<button onclick="closeCamera()">
+
+关闭
+
+</button>
+
+
+</div>
+
+
+
+
+
 </main>
+
+
 <script>
 
 
 const currentUser="{{ user }}";
 
+
 const socket=io();
+
+
+let messageIds=new Set();
+
+
+
+
+function escapeHTML(str){
+
+
+    if(!str){
+
+        return "";
+
+    }
+
+
+    return str
+
+    .replace(/&/g,"&amp;")
+
+    .replace(/</g,"&lt;")
+
+    .replace(/>/g,"&gt;")
+
+    .replace(/"/g,"&quot;")
+
+    .replace(/'/g,"&#039;");
+
+
+}
+
+
+
+
+
+function formatChatTime(time){
+
+    if(!time){
+        return "";
+    }
+
+    let d=new Date(
+    time.replace(" ","T") + "+08:00"
+);
+
+    if(isNaN(d)){
+        return "";
+    }
+
+    return d.getHours()
+    .toString()
+    .padStart(2,"0")
+    +
+    ":"
+    +
+    d.getMinutes()
+    .toString()
+    .padStart(2,"0");
+
+}
+
+
+function loadStatus(){
+
+
+fetch("/status")
+
+
+.then(res=>res.json())
+
+
+.then(data=>{
+
+
+
+const text=document.getElementById(
+"chat-status-text"
+);
+
+
+
+const dot=document.getElementById(
+"chat-status-dot"
+);
+
+
+
+
+
+if(data.online){
+
+
+text.innerHTML="在线";
+
+
+dot.style.background="#22c55e";
+
+
+dot.style.boxShadow=
+"0 0 10px #22c55e";
+
+
+}else{
+
+
+text.innerHTML="离线";
+
+
+dot.style.background="#94a3b8";
+
+
+dot.style.boxShadow="none";
+
+
+}
+
+
+})
+
+
+.catch(()=>{
+
+
+document.getElementById(
+"chat-status-text"
+).innerHTML="离线";
+
+
+});
+
+
+}
+
+
+
+
+
+
+function heartbeat(){
+
+
+fetch("/heartbeat");
+
+
+}
+
+
+
+
+
+loadStatus();
+
+
+heartbeat();
+
+
+
+setInterval(loadStatus,5000);
+
+
+setInterval(heartbeat,10000);
+
 
 
 
 
 
 function addBubble(msg){
+
+
+if(messageIds.has(msg.id)){
+
+
+return;
+
+
+}
+
+
+
+messageIds.add(msg.id);
+
+
 
 
 const box=document.getElementById(
@@ -280,6 +482,7 @@ const box=document.getElementById(
 const div=document.createElement(
 "div"
 );
+
 
 
 
@@ -298,11 +501,55 @@ msg.sender===currentUser
 
 
 
+let html="";
+
+
+
+
+
+if(msg.withdrawn==1){
+
+
+html=`
+
+<div class="withdraw-message">
+
+该消息已撤回
+
+</div>
+
+`;
+
+
+}else{
+
+
+if(msg.quote_text){
+
+
+html+=`
+
+<div class="quote-box">
+
+引用：
+
+${escapeHTML(msg.quote_text)}
+
+</div>
+
+`;
+
+
+}
+
+
+
+
 
 if(msg.type==="image"){
 
 
-div.innerHTML=`
+html+=`
 
 <img
 
@@ -310,16 +557,70 @@ src="/static/uploads/chat/${msg.content}"
 
 class="chat-image"
 
-onclick="window.open(this.src)"
+>
+
+`;
+
+
+
+}else if(msg.type==="file"){
+
+
+html+=`
+
+<a
+
+class="file-message"
+
+href="/static/uploads/file/${msg.content}"
+
+target="_blank"
 
 >
 
+📄 ${escapeHTML(msg.content)}
 
-<span>
+</a>
 
-${msg.time}
+`;
 
-</span>
+
+
+}else if(msg.type==="voice"){
+
+
+html+=`
+
+<div class="voice-message">
+
+
+<audio controls>
+
+<source src="/static/uploads/voice/${msg.content}">
+
+</audio>
+
+
+${msg.voice_text ?
+
+`
+
+<div class="voice-text">
+
+${escapeHTML(msg.voice_text)}
+
+</div>
+
+`
+
+:
+
+""
+
+}
+
+
+</div>
 
 `;
 
@@ -328,20 +629,13 @@ ${msg.time}
 }else{
 
 
-div.innerHTML=`
+html+=`
 
-<p>
+<div class="message-text">
 
-${msg.content}
+${escapeHTML(msg.content)}
 
-</p>
-
-
-<span>
-
-${msg.time}
-
-</span>
+</div>
 
 `;
 
@@ -350,11 +644,35 @@ ${msg.time}
 }
 
 
+}
+
+
+
+html+=`
+
+<div class="message-time">
+
+${formatChatTime(msg.time)}
+
+</div>
+
+`;
+
+
+
+div.innerHTML=html;
+
+
 
 box.appendChild(div);
 
 
+
 box.scrollTop=box.scrollHeight;
+
+
+
+addLongPress(div,msg);
 
 
 }
@@ -363,9 +681,111 @@ box.scrollTop=box.scrollHeight;
 
 
 
+function addLongPress(div,msg){
 
 
-// 实时消息
+let timer=null;
+
+
+
+div.addEventListener(
+
+"touchstart",
+
+function(e){
+
+
+e.preventDefault();
+
+
+
+timer=setTimeout(()=>{
+
+
+if(
+
+msg.sender===currentUser
+
+&&
+
+msg.withdrawn!=1
+
+){
+
+
+withdrawMessage(msg.id);
+
+
+}
+
+
+},700);
+
+
+
+},
+
+{
+
+passive:false
+
+}
+
+);
+
+
+
+div.addEventListener(
+
+"touchend",
+
+function(){
+
+
+clearTimeout(timer);
+
+
+}
+
+);
+
+
+
+
+div.addEventListener(
+
+"contextmenu",
+
+function(e){
+
+
+e.preventDefault();
+
+
+
+if(
+
+msg.sender===currentUser
+
+&&
+
+msg.withdrawn!=1
+
+){
+
+
+withdrawMessage(msg.id);
+
+
+}
+
+
+}
+
+);
+
+
+}
 
 
 socket.on(
@@ -378,6 +798,9 @@ function(msg){
 addBubble(msg);
 
 
+scrollBottom();
+
+
 }
 
 );
@@ -385,11 +808,6 @@ addBubble(msg);
 
 
 
-
-
-
-
-// 历史消息
 
 
 function loadMessages(){
@@ -414,17 +832,87 @@ box.innerHTML="";
 
 
 
+messageIds.clear();
+
+
+
+let lastDate="";
+
+
+
 data.forEach(msg=>{
+
+
+
+let date="";
+
+if(msg.time){
+
+date=new Date(
+msg.time.replace(" ","T")
+)
+.toLocaleDateString(
+"zh-CN",
+{
+year:"numeric",
+month:"long",
+day:"numeric"
+}
+);
+
+}
+
+
+
+if(date && date!==lastDate){
+
+
+const dateDiv=document.createElement(
+"div"
+);
+
+
+
+dateDiv.className="chat-date";
+
+
+
+dateDiv.innerHTML=`
+
+<span>
+
+${date}
+
+</span>
+
+`;
+
+
+
+box.appendChild(dateDiv);
+
+
+
+lastDate=date;
+
+
+}
+
 
 
 addBubble(msg);
 
 
-});
-
 
 });
 
+
+
+scrollBottom();
+
+
+
+});
 
 
 }
@@ -435,11 +923,40 @@ addBubble(msg);
 
 
 
+function scrollBottom(){
 
-// 发送文字
+
+const box=document.getElementById(
+"messages"
+);
+
+
+
+if(box){
+
+
+box.scrollTo({
+
+top:box.scrollHeight,
+
+behavior:"smooth"
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
 
 
 function sendMessage(){
+
 
 
 const input=document.getElementById(
@@ -480,6 +997,8 @@ type:"text"
 
 input.value="";
 
+input.focus();
+
 
 }
 
@@ -489,16 +1008,10 @@ input.value="";
 
 
 
-
-// 加号菜单
-
-
 function toggleMenu(){
 
 
-document
-
-.getElementById(
+document.getElementById(
 "plus-menu"
 )
 
@@ -514,17 +1027,10 @@ document
 
 
 
-
-
-// 图片
-
-
 function chooseImage(){
 
 
-document
-
-.getElementById(
+document.getElementById(
 "image"
 )
 
@@ -537,20 +1043,25 @@ document
 
 
 
-document
 
-.getElementById(
-"image"
+function chooseFile(){
+
+
+document.getElementById(
+"file"
 )
 
-.addEventListener(
-
-"change",
-
-function(){
+.click();
 
 
-const file=this.files[0];
+}
+
+
+
+
+
+
+async function uploadFile(file,type){
 
 
 if(!file){
@@ -561,27 +1072,693 @@ return;
 
 
 
+let upload=file;
+
+
+
+if(type==="image"){
+
+
+upload=await compressImage(file);
+
+
+}
+
+
+
+
 const form=new FormData();
 
 
 
 form.append(
-"image",
-file
+
+type,
+
+upload
+
 );
+
+
+
+
+
+const url=
+
+type==="image"
+
+?
+
+"/chat/upload"
+
+:
+
+"/chat/file/upload";
+
+
+fetch(
+url,
+{
+method:"POST",
+body:form
+}
+)
+.then(res=>{
+
+if(!res.ok){
+
+throw Error();
+
+}
+
+loadMessages();
+
+})
+.catch(()=>{
+
+alert("上传失败");
+
+});
+
+document
+.getElementById("plus-menu")
+.classList.remove("show");
+
+
+}
+
+
+
+
+
+
+
+
+function compressImage(file){
+
+
+
+return new Promise(resolve=>{
+
+
+
+const img=new Image();
+
+
+
+
+img.onload=function(){
+
+
+
+const canvas=document.createElement(
+"canvas"
+);
+
+
+
+let w=img.width;
+
+
+let h=img.height;
+
+
+
+
+const max=1600;
+
+
+
+
+
+if(w>h){
+
+
+if(w>max){
+
+
+h=h*max/w;
+
+
+w=max;
+
+
+}
+
+
+}else{
+
+
+
+if(h>max){
+
+
+w=w*max/h;
+
+
+h=max;
+
+
+}
+
+
+}
+
+
+
+
+
+
+canvas.width=w;
+
+
+canvas.height=h;
+
+
+
+
+
+const ctx=canvas.getContext(
+"2d"
+);
+
+
+
+
+ctx.drawImage(
+
+img,
+
+0,
+
+0,
+
+w,
+
+h
+
+);
+
+
+
+
+
+
+canvas.toBlob(
+
+blob=>{
+
+
+
+resolve(
+
+new File(
+
+[blob],
+
+file.name,
+
+{
+
+type:"image/jpeg"
+
+}
+
+)
+
+);
+
+
+
+},
+
+"image/jpeg",
+
+0.85
+
+);
+
+
+
+
+
+};
+
+
+
+img.src=URL.createObjectURL(file);
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+document
+
+.getElementById("image")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+
+uploadFile(
+
+this.files[0],
+
+"image"
+
+);
+
+
+
+this.value="";
+
+
+
+}
+
+);
+
+
+
+
+
+
+document
+
+.getElementById("file")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+
+uploadFile(
+
+this.files[0],
+
+"file"
+
+);
+
+
+
+this.value="";
+
+
+}
+
+);
+
+
+
+
+
+
+let cameraStream=null;
+
+
+
+
+
+
+
+function camera(){
+
+
+
+const mobile=
+
+/Android|iPhone|iPad|iPod/i.test(
+
+navigator.userAgent
+
+);
+
+
+
+
+
+if(mobile){
+
+
+
+document
+
+.getElementById("camera")
+
+.click();
+
+
+
+return;
+
+
+}
+
+
+
+
+
+const box=document.getElementById(
+"camera-box"
+);
+
+
+
+box.style.display="block";
+
+
+
+
+
+
+navigator.mediaDevices
+
+.getUserMedia({
+
+video:{
+
+facingMode:"user"
+
+}
+
+})
+
+.then(stream=>{
+
+
+
+cameraStream=stream;
+
+
+
+
+document
+
+.getElementById("camera-video")
+
+.srcObject=stream;
+
+
+
+})
+
+.catch(()=>{
+
+
+alert(
+
+"无法访问摄像头，请检查权限"
+
+);
+
+
+});
+
+
+
+}
+
+
+
+
+
+
+
+document
+
+.getElementById("camera")
+
+.addEventListener(
+
+"change",
+
+function(){
+
+
+
+uploadFile(
+
+this.files[0],
+
+"image"
+
+);
+
+
+
+this.value="";
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+function takePhoto(){
+
+
+
+const video=document.getElementById(
+"camera-video"
+);
+
+
+
+if(!video.videoWidth){
+
+
+alert(
+
+"摄像头未准备好"
+
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+const canvas=document.createElement(
+"canvas"
+);
+
+
+
+canvas.width=video.videoWidth;
+
+
+canvas.height=video.videoHeight;
+
+
+
+
+
+
+const ctx=canvas.getContext(
+"2d"
+);
+
+
+
+ctx.drawImage(
+
+video,
+
+0,
+
+0
+
+);
+
+
+
+
+
+
+canvas.toBlob(
+
+blob=>{
+
+
+
+const file=new File(
+
+[blob],
+
+"camera.jpg",
+
+{
+
+type:"image/jpeg"
+
+}
+
+);
+
+
+
+
+uploadFile(
+
+file,
+
+"image"
+
+);
+
+
+
+},
+
+
+"image/jpeg",
+
+
+0.85
+
+
+);
+
+
+
+
+
+closeCamera();
+
+
+
+}
+
+
+
+
+
+
+
+function closeCamera(){
+
+
+
+if(cameraStream){
+
+
+
+cameraStream
+
+.getTracks()
+
+.forEach(
+
+track=>{
+
+track.stop();
+
+}
+
+);
+
+
+
+cameraStream=null;
+
+
+}
+
+
+
+
+
+
+document
+
+.getElementById("camera-box")
+
+.style.display="none";
+
+
+}
+
+
+
+
+
+
+
+function emojiOpen(){
+
+
+
+alert(
+
+"表情功能开发中"
+
+);
+
+
+}
+
+
+
+
+
+
+
+function withdrawMessage(id){
+
+
+
+if(!confirm(
+
+"撤回这条消息？"
+
+)){
+
+
+return;
+
+
+}
 
 
 
 
 fetch(
 
-"/chat/upload",
+"/chat/withdraw/"+id,
 
 {
 
-method:"POST",
-
-body:form
+method:"POST"
 
 }
 
@@ -598,96 +1775,186 @@ loadMessages();
 
 }
 
+
+
+
+
+
+let recorder=null;
+
+let recordStream=null;
+
+let recordChunks=[];
+
+let recordTimer=null;
+
+let recordSeconds=0;
+
+let isRecording=false;
+
+let audioContext=null;
+
+let analyser=null;
+
+let animationFrame=null;
+
+
+
+const voiceBtn=document.querySelector(
+"#voice-btn"
 );
 
 
 
 
 
+function updateRecordTime(){
 
 
 
-
-// 文件预留
-
-
-function chooseFile(){
-
-
-alert(
-"文件功能开发中"
+let min=Math.floor(
+recordSeconds/60
 );
 
 
-}
+
+let sec=recordSeconds%60;
+
+
+
+sec=sec<10
+
+?
+
+"0"+sec
+
+:
+
+sec;
 
 
 
 
 
-
-
-// 拍照预留
-
-
-function camera(){
-
-
-alert(
-"拍照功能开发中"
-);
-
-
-}
-
-
-
-
-
-
-
-// 表情预留
-
-
-function emojiOpen(){
-
-
-alert(
-"表情功能开发中"
-);
-
-
-}
-
-
-
-
-
-
-
-// 回车发送
-
-
-document
-
-.getElementById(
-"message"
+document.getElementById(
+"record-time"
 )
 
-.addEventListener(
+.innerHTML=
 
-"keydown",
+min+":"+sec;
 
-function(e){
-
-
-if(e.key==="Enter"){
-
-
-sendMessage();
 
 
 }
+
+
+
+
+
+function animateWave(){
+
+
+
+const waves=document.querySelectorAll(
+
+".record-wave span"
+
+);
+
+
+
+if(!analyser){
+
+return;
+
+}
+
+
+
+
+
+const dataArray=new Uint8Array(
+
+analyser.frequencyBinCount
+
+);
+
+
+
+
+
+function update(){
+
+
+
+analyser.getByteTimeDomainData(
+
+dataArray
+
+);
+
+
+
+
+
+let sum=0;
+
+
+
+for(let i=0;i<dataArray.length;i++){
+
+
+let value=dataArray[i]-128;
+
+
+sum+=value*value;
+
+
+}
+
+
+
+
+
+let volume=Math.sqrt(
+
+sum/dataArray.length
+
+);
+
+
+
+let height=8+volume*5;
+
+
+
+
+
+waves.forEach(
+
+(item,index)=>{
+
+
+
+let offset=Math.sin(
+
+Date.now()/120+index
+
+)*5;
+
+
+
+item.style.height=
+
+Math.max(
+
+8,
+
+height+offset
+
+)+"px";
+
 
 
 }
@@ -696,38 +1963,296 @@ sendMessage();
 
 
 
-
-
-
-
-// 未读
-
-
-function loadUnread(){
-
-
-fetch("/chat/unread")
-
-.then(res=>res.json())
-
-.then(data=>{
-
-
-let el=document.getElementById(
-"unread"
+animationFrame=requestAnimationFrame(
+update
 );
 
 
 
-if(data.count>0){
+}
 
-el.innerHTML=" · "+data.count+"条新消息";
 
-}else{
 
-el.innerHTML="";
+update();
+
+
 
 }
+
+
+
+
+function startRecord(){
+
+
+if(isRecording){
+
+return;
+
+}
+
+
+
+
+navigator.mediaDevices
+
+.getUserMedia({
+
+audio:true
+
+})
+
+.then(stream=>{
+
+
+
+isRecording=true;
+
+
+
+recordStream=stream;
+
+
+
+
+
+audioContext=new AudioContext();
+
+
+
+const source=
+
+audioContext.createMediaStreamSource(
+
+stream
+
+);
+
+
+
+
+
+analyser=
+
+audioContext.createAnalyser();
+
+
+
+analyser.fftSize=256;
+
+
+
+source.connect(
+
+analyser
+
+);
+
+
+
+
+
+animateWave();
+
+
+
+
+
+
+recorder=new MediaRecorder(
+
+stream
+
+);
+
+
+
+
+
+recordChunks=[];
+
+
+
+
+
+
+
+recorder.ondataavailable=function(e){
+
+
+
+if(e.data.size>0){
+
+
+recordChunks.push(e.data);
+
+
+}
+
+
+
+};
+
+
+
+
+
+
+
+recorder.onstop=function(){
+
+
+
+const blob=new Blob(
+recordChunks,
+{
+    type:"audio/webm;codecs=opus"
+}
+);
+
+
+
+if(blob.size<1000){
+
+
+return;
+
+
+}
+
+
+
+
+
+
+const form=new FormData();
+
+
+
+
+
+form.append(
+
+"voice",
+
+blob,
+
+"voice.webm"
+
+);
+
+
+
+
+
+
+fetch(
+"/chat/voice",
+{
+method:"POST",
+body:form
+}
+)
+.then(res=>{
+
+if(!res.ok){
+
+throw Error();
+
+}
+
+loadMessages();
+
+})
+.catch(()=>{
+
+alert("上传失败");
+
+});
+
+
+
+};
+
+
+
+
+
+
+
+recorder.start();
+
+
+
+
+
+
+
+document.getElementById(
+"record-panel"
+)
+
+.style.display="flex";
+
+
+
+
+
+recordSeconds=0;
+
+
+
+updateRecordTime();
+
+
+
+
+
+
+
+recordTimer=setInterval(()=>{
+
+
+
+recordSeconds++;
+
+
+
+updateRecordTime();
+
+
+
+
+if(recordSeconds>=60){
+
+
+
+stopRecord();
+
+
+
+}
+
+
+
+},1000);
+
+
+
+
+
+})
+
+.catch(()=>{
+
+
+
+alert(
+
+"无法使用麦克风"
+
+);
+
 
 
 });
@@ -739,9 +2264,609 @@ el.innerHTML="";
 
 
 
-loadMessages();
+
+
+
+function stopRecord(){
+
+
+
+if(!isRecording){
+
+
+return;
+
+
+}
+
+
+
+isRecording=false;
+
+
+
+
+
+
+if(animationFrame){
+
+
+cancelAnimationFrame(
+
+animationFrame
+
+);
+
+
+}
+
+
+
+
+
+if(audioContext){
+
+
+
+audioContext.close();
+
+
+
+audioContext=null;
+
+
+
+}
+
+
+
+
+
+analyser=null;
+
+
+
+if(recorder && recorder.state!=="inactive"){
+
+    recorder.stop();
+
+}
+
+recorder=null;
+
+
+
+if(recordStream){
+
+
+
+recordStream
+
+.getTracks()
+
+.forEach(
+
+track=>{
+
+
+track.stop();
+
+
+}
+
+);
+
+
+
+recordStream=null;
+
+
+}
+
+
+
+
+
+clearInterval(
+
+recordTimer
+
+);
+
+
+
+recordTimer=null;
+
+
+
+
+
+
+document.getElementById(
+"record-panel"
+)
+
+.style.display="none";
+
+
+
+
+
+
+
+document.querySelectorAll(
+
+".record-wave span"
+
+)
+
+.forEach(
+
+item=>{
+
+
+item.style.height="10px";
+
+
+}
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+/* 手机长按录音 */
+
+
+
+voiceBtn.addEventListener(
+"touchstart",
+function(e){
+
+e.preventDefault();
+
+startRecord();
+
+},
+{
+passive:false
+}
+);
+
+
+
+
+
+
+
+voiceBtn.addEventListener(
+
+"touchend",
+
+function(e){
+
+
+
+e.preventDefault();
+
+
+
+stopRecord();
+
+
+
+},
+
+{
+
+passive:false
+
+}
+
+);
+
+
+
+
+
+
+
+
+voiceBtn.addEventListener(
+
+"touchcancel",
+
+function(){
+
+
+
+stopRecord();
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+voiceBtn.addEventListener(
+
+"contextmenu",
+
+function(e){
+
+
+
+e.preventDefault();
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+/* PC测试录音 */
+
+
+
+voiceBtn.addEventListener(
+
+"mousedown",
+
+function(){
+
+
+
+startRecord();
+
+
+
+}
+
+);
+
+
+
+
+
+
+voiceBtn.addEventListener(
+
+"mouseup",
+
+function(){
+
+
+
+stopRecord();
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+function loadUnread(){
+
+
+
+fetch(
+
+"/chat/unread"
+
+)
+
+.then(
+
+res=>res.json()
+
+)
+
+.then(
+
+data=>{
+
+
+
+const el=document.getElementById(
+
+"unread"
+
+);
+
+
+
+
+
+if(data.count>0){
+
+
+
+el.innerHTML=
+
+" · "+data.count+"条新消息";
+
+
+
+}else{
+
+
+
+el.innerHTML="";
+
+
+
+}
+
+
+
+}
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+document
+
+.getElementById("message")
+
+.addEventListener(
+
+"keydown",
+
+function(e){
+
+
+
+if(e.key==="Enter"){
+
+
+
+e.preventDefault();
+
+
+
+sendMessage();
+
+
+
+}
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+document.addEventListener(
+
+"click",
+
+function(e){
+
+
+
+const menu=document.getElementById(
+
+"plus-menu"
+
+);
+
+
+
+
+const box=document.querySelector(
+
+".plus-box"
+
+);
+
+
+
+
+
+
+if(
+
+box &&
+
+!box.contains(e.target)
+
+){
+
+
+
+menu.classList.remove(
+
+"show"
+
+);
+
+
+
+}
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+
+document.addEventListener(
+
+"visibilitychange",
+
+function(){
+
+
+
+if(document.visibilityState==="visible"){
+
+
+
+heartbeat();
+
+
+
+loadStatus();
+
+
 
 loadUnread();
+
+
+
+}
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+socket.on(
+
+"connect",
+
+function(){
+
+
+
+console.log(
+
+"聊天服务器已连接"
+
+);
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+socket.on(
+
+"disconnect",
+
+function(){
+
+
+
+console.log(
+
+"聊天服务器断开"
+
+);
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+
+socket.on(
+
+"connect_error",
+
+function(){
+
+
+
+console.log(
+
+"Socket连接失败"
+
+);
+
+
+
+}
+
+);
+
+
+
+
+
+
+
+loadMessages();
+
+
+loadUnread();
+
+
+
 
 
 
@@ -755,9 +2880,20 @@ loadUnread,
 
 
 
+
+
 </script>
 
 
-</body>
+<script src="/static/js/chat.js"></script>
+<script src="/static/js/chat_read.js"></script>
 
+<script>
+initChatSocket();
+</script>
+
+</body>
 </html>
+
+
+<script src="/static/js/chat_read.js"></script>

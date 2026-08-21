@@ -1,0 +1,79 @@
+.widget{
+
+    background:
+    rgba(
+        255,
+        255,
+        255,
+        .62
+    );
+
+    border:
+    1px solid
+    rgba(
+        255,
+        255,
+        255,
+        .8
+    );
+
+    backdrop-filter:
+    blur(25px);
+
+    -webkit-backdrop-filter:
+    blur(25px);
+
+    border-radius:30px;
+
+    padding:35px;
+
+    margin-bottom:30px;
+
+    box-shadow:
+    0 20px 60px
+    rgba(
+        148,
+        163,
+        184,
+        .18
+    );
+
+    overflow:hidden;
+}
+
+
+
+.glass-button{
+
+    width:100%;
+
+    padding:16px;
+
+    border:none;
+
+    border-radius:22px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #f9a8d4,
+        #93c5fd,
+        #c4b5fd
+    );
+
+    color:white;
+
+    font-size:17px;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+
+.glass-button:hover{
+
+    transform:
+    translateY(-3px);
+
+}

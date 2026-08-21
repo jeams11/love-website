@@ -1,0 +1,168 @@
+@keyframes float{
+
+    from{
+        transform:translateY(0);
+    }
+
+    to{
+        transform:translateY(80px);
+    }
+
+}
+
+
+
+@keyframes twinkle{
+
+    from{
+        opacity:.3;
+    }
+
+    to{
+        opacity:1;
+    }
+
+}
+
+
+
+@keyframes fadeIn{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(30px);
+
+    }
+
+
+    to{
+
+        opacity:1;
+
+        transform:none;
+
+    }
+
+}
+
+
+
+@keyframes chatFloat{
+
+    from{
+
+        transform:translateY(0);
+
+    }
+
+
+    to{
+
+        transform:translateY(70px);
+
+    }
+
+}
+
+
+
+@keyframes bubbleShow{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(15px);
+
+    }
+
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0);
+
+    }
+
+}
+
+
+
+#status-dot{
+
+    animation:
+
+    onlinePulse 2s infinite;
+
+}
+
+
+
+@keyframes onlinePulse{
+
+    0%{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+
+    50%{
+
+        transform:scale(1.35);
+
+        opacity:.55;
+
+    }
+
+
+    100%{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+}
+
+
+
+@keyframes meteor{
+
+    0%{
+
+        transform:
+        translateX(0)
+        rotate(25deg);
+
+        opacity:0;
+
+    }
+
+
+    15%{
+
+        opacity:1;
+
+    }
+
+
+    100%{
+
+        transform:
+        translateX(140vw)
+        rotate(25deg);
+
+        opacity:0;
+
+    }
+
+}
